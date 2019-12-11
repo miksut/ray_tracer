@@ -1,0 +1,15 @@
+-I/mnt/Larc/Repositories/vmml/acg_hs19_framework/external/assimp/include
+-I/mnt/Larc/Repositories/vmml/acg_hs19_framework/external/assimp
+-I/mnt/Larc/Repositories/vmml/acg_hs19_framework/external/assimp/include
+-I/mnt/Larc/Repositories/vmml/acg_hs19_framework/external/assimp/.
+-I/usr/include
+-I/mnt/Larc/Repositories/vmml/acg_hs19_framework/external/assimp/include
+-I/mnt/Larc/Repositories/vmml/acg_hs19_framework/external/assimp/code
+-I/mnt/Larc/Repositories/vmml/acg_hs19_framework/external/assimp/tools/assimp_qt_viewer
+-I/mnt/Larc/Repositories/vmml/acg_hs19_framework/external/assimp
+-I/usr/include
+-DASSIMP_BUILD_NO_OWN_ZLIB
+-DASSIMP_BUILD_NO_C4D_IMPORTER
+-o
+/mnt/Larc/Repositories/vmml/acg_hs19_framework/external/assimp/tools/assimp_qt_viewer/moc_glview.cpp
+/mnt/Larc/Repositories/vmml/acg_hs19_framework/external/assimp/tools/assimp_qt_viewer/glview.hpp
