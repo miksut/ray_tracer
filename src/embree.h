@@ -2,6 +2,7 @@
 #define EMBREE_H
 
 #include <embree3/rtcore.h>
+#include <future>
 
 #include "DrawableShape.h"
 #include "Camera.h"
@@ -77,7 +78,7 @@ class embree
 		void build_bvh();
 		unsigned add_sphere(const glm::vec4 & xyzr);
 		unsigned add_mesh(const DrawableShape & mesh, const glm::mat4 & model_matrix = glm::mat4());
-    float * cast_rays(const glm::uvec2 & windows_size, const Camera & cam, const unsigned & samples = 4);
+    std::future<float*> cast_rays(const glm::uvec2 & windows_size, const Camera & cam, const unsigned & samples = 4);
 
 		bool intersect(ray_hit & r);
 };

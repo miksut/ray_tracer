@@ -188,9 +188,15 @@ namespace cgCourse
 
     embree_render.build_bvh();
 
-    float * frame = embree_render.cast_rays(getWindowSize(), cam);
-    //TODO: Output frame to the disk
-    delete [] frame;
+    auto futureFrame = embree_render.cast_rays(getWindowSize(), cam);
+
+  
+    futureFrame.wait();
+    auto frame = futureFrame.get();
+  
+    ImageSaver::saveImageAsPPM("test", getWindowSize().x, getWindowSize().y, frame);
+
+    delete[] frame;
   }
 }
 

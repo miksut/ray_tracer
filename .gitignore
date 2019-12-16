@@ -116,3 +116,4 @@ external/assimp/tools/assimp_qt_viewer/assimp_qt_viewer.cbp
 install
 
 *.swp
+*.pdf

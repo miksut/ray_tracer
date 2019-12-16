@@ -77,6 +77,31 @@ namespace cgCourse
 	{
 		return this->position;
 	}
+    
+    glm::vec3 Camera::getUpVector() const
+    {
+        return glm::normalize(up);
+    }
+    
+    glm::vec3 Camera::getRightVector() const
+    {
+        return glm::normalize(glm::cross(getForwardVector(), up));
+    }
+    
+    glm::vec3 Camera::getTargetVector() const
+    {
+        return glm::normalize(target);
+    }
+    
+    glm::vec3 Camera::getForwardVector() const
+    {
+        return glm::normalize(target - position);
+    }
+    
+    float Camera::getFieldOfView() const
+    {
+        return fieldOfView;
+    }
 
 	glm::mat4 Camera::getViewMatrix() const
 	{
@@ -101,7 +126,7 @@ namespace cgCourse
         up = newup;
         position = target + newv;
         
-        double currentAngle =  glm::dot(glm::normalize(newv), glm::vec3(0,1,0));
+        double currentAngle = glm::dot(glm::normalize(newv), glm::vec3(0,1,0));
         float newAngle = currentAngle - _v.y / cameraMouseIntensity;
         newAngle = glm::clamp(newAngle, -1.f, 1.f);
         if (currentAngle != newAngle){
