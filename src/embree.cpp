@@ -3,6 +3,8 @@
 #include <iostream>
 #include <random>
 
+#include "SimpleRayTracer.h"
+
 void embree_error(void * ptr, RTCError error, const char * str)
 {
 	fprintf(stderr, "EMBREE ERROR: %s\n", str);
@@ -74,17 +76,10 @@ unsigned embree::add_mesh(const DrawableShape & mesh, const glm::mat4 & model_ma
 	return geom_id;
 }
 
-float* embree::cast_rays(const glm::uvec2 & windows_size, const Camera & cam, const unsigned & samples)
+std::future<float*> embree::cast_rays(const glm::uvec2 & windows_size, const Camera & cam, const unsigned & samples)
 {
-  float * frame = new float[windows_size.x * windows_size.y];
-
-  // TODO
-  // Shoot primary rays here
-  // ...
-
-  std::cout << "Nothing implemented yet" << std::endl;
-
-	return frame;
+    auto simpleTracer = std::make_shared<SimpleRayTracer>(windows_size.x, windows_size.y, scene);
+    return simpleTracer->start(cam, samples);
 }
 
 bool embree::intersect(ray_hit & r)

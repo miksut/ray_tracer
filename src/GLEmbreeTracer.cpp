@@ -188,13 +188,17 @@ namespace cgCourse
 
     embree_render.build_bvh();
 
-    float * frame = embree_render.cast_rays(getWindowSize(), cam);
-	
-	//test image
-	float test[12] = { 0.1, 0.2, 0.1, 0.2, 0.3, 0.4, 0.9, 0.9, 0.9, 0.5, 0.0, 0.0 };
-	ImageSaver::saveImageAsPPM("test", 2, 2, test);
+    auto futureFrame = embree_render.cast_rays(getWindowSize(), cam);
 
-	delete[] frame;
+  
+    futureFrame.wait();
+    auto frame = futureFrame.get();
+  
+    //test image
+    float test[12] = { 0.1, 0.2, 0.1, 0.2, 0.3, 0.4, 0.9, 0.9, 0.9, 0.5, 0.0, 0.0 };
+    ImageSaver::saveImageAsPPM("test", 2, 2, test);
+
+    delete[] frame;
   }
 }
 
