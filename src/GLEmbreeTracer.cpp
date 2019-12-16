@@ -194,9 +194,7 @@ namespace cgCourse
     futureFrame.wait();
     auto frame = futureFrame.get();
   
-    //test image
-    float test[12] = { 0.1, 0.2, 0.1, 0.2, 0.3, 0.4, 0.9, 0.9, 0.9, 0.5, 0.0, 0.0 };
-    ImageSaver::saveImageAsPPM("test", 2, 2, test);
+    ImageSaver::saveImageAsPPM("test", getWindowSize().x, getWindowSize().y, frame);
 
     delete[] frame;
   }

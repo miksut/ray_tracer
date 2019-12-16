@@ -9,7 +9,7 @@ namespace cgCourse {
 
 		myfile << "P3\n" << width << " " << height << "\n255\n";
 
-		for (int j = height - 1; j >= 0; j--) {
+        for (int j = 0; j < height; j++) {
 			for (int i = 0; i < width; i++) {
 				float r = data[3 * (j * width + i)];
 				float g = data[3 * (j * width + i) + 1];
