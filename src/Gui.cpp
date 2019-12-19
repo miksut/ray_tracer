@@ -100,22 +100,11 @@ namespace cgCourse
       if (ImGui::GetFrameCount() ==1)
         ImGui::SetNextWindowSize({300,1000});
 
-      ImGui::Begin("Menu",NULL,ImGuiWindowFlags_NoMove);                          // Create a window called "Menu" and append into it.
-      if (typeid(*GLApp::current) == typeid(GLEmbreeTracer))
-      if (GLApp::current && ImGui::Button("Raycaster"))
-      {
-          dynamic_cast<GLEmbreeTracer*>(GLApp::current)->tracer();
-      }
+      ImGui::Begin("Menu",NULL,ImGuiWindowFlags_NoMove);    // Create a window called "Menu" and append into it.
 
 
       ImGui::Text("Light Color:");               // Display some text (you can use a format strings too)
       ImGui::ColorEdit3("", (float *)getVar("lightDiffuse")); // Edit 3 floats representing a color
-
-
-      ImGui::Text("Point Size:");               // Display some text (you can use a format strings too)
-
-      if(ImGui::SliderFloat("float", (float *)getVar("pointSize"), 0.0f, 100.0f)){            // Edit 1 float using a slider from 0.0f to 100.0f
-      }
       ImGui::Separator();
       ImGui::Text("Camera Type:");
       ImGui::RadioButton("Arcball", (int *)getVar("cameraType"), 0); ImGui::SameLine();
@@ -129,6 +118,31 @@ namespace cgCourse
       ImGui::Separator();
       ImGui::Text("Application average %.3f ms/frame", 1000.0f / ImGui::GetIO().Framerate);
       ImGui::Text("FPS: %.1f FPS", ImGui::GetIO().Framerate);
+
+	  ImGui::Separator();
+
+	  if (typeid(*GLApp::current) == typeid(GLEmbreeTracer)) {
+		  if (ImGui::CollapsingHeader("Raytracing")) {
+			  ImGui::AlignTextToFramePadding();
+			  ImGui::Text("Filename: "); ImGui::SameLine();
+
+			  ImGui::InputText("##label", (char *)getVar("tracedFileName"), 128);
+
+			  ImGui::AlignTextToFramePadding();
+			  ImGui::Text("Format: "); ImGui::SameLine();
+
+			  ImGui::RadioButton("PPM", (int *)getVar("imageFormat"), 0); ImGui::SameLine();
+			  //ImGui::RadioButton("PNG", (int *)getVar("imageFormat"), 1); ImGui::SameLine();
+
+			  ImGui::Separator();
+
+			  ImGui::Text("Run a raytracer: ");
+			  if (GLApp::current && ImGui::Button("Raycaster", ImVec2(-1, 30)))
+			  {
+				  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->tracer();
+			  }
+		  }
+	  }
 
       inputAccept = !ImGui::GetIO().WantCaptureMouse;
       InputManager::consumed = !inputAccept;

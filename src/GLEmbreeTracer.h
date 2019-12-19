@@ -12,6 +12,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <memory>
+#include <future>
 #include "Mesh.h"
 #include "FrameBuffer.h"
 
@@ -24,6 +25,10 @@ namespace cgCourse
       enum LightMotionMode {
         Forward = 0, Backward  = 1
       };
+
+	  enum ImageFormat {
+		  PPM = 0, PNG = 1
+	  };
 
       GLEmbreeTracer(glm::uvec2 _windowSize, std::string _title, std::string _exepath);
 
@@ -59,8 +64,8 @@ namespace cgCourse
       Camera cam;
 
       int shadingAlgorithm = 0; //phong, blinn, cook
-      //   bool inputAccept;
-      float pointSize = 40;
+	  char tracedFileName[128] = "tracedImage"; //filename of the image to be saved
+	  ImageFormat imageFormat = ImageFormat::PPM; // image format for image to be saved
   };
 }
 

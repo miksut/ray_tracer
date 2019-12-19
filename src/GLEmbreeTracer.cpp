@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
-
+#include <string>
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -35,8 +35,9 @@ namespace cgCourse
     initGui(window_);
 
     connectVar("lightDiffuse", &light.diffuseTerm.x);
-    connectVar("pointSize",&pointSize);
     connectVar("shadingAlgorithm", &shadingAlgorithm);
+	connectVar("tracedFileName", &tracedFileName);
+	connectVar("imageFormat", &imageFormat);
 
     // Framebuffer size and window size may be different in high-DPI displays
     // setup camera with standard view (static for our case)
@@ -98,6 +99,12 @@ namespace cgCourse
   {
     updateGui();
 
+	//reset file name if not set
+	if (tracedFileName[0] == '\0') {
+		std::string defaultName = "tracedImage";
+		strcpy(tracedFileName, defaultName.c_str());
+	}
+
     if(animationDir == Forward)
     {
       if (animation > 1.5) {
@@ -124,8 +131,6 @@ namespace cgCourse
     lightbox->getMaterial()->illumination = 1;
     lightbox->getMaterial()->kd = glm::vec3(0);
     lightbox->getMaterial()->ka = glm::vec3(0);
-
-    glPointSize(pointSize);
 
     return true;
   }
@@ -194,7 +199,7 @@ namespace cgCourse
     futureFrame.wait();
     auto frame = futureFrame.get();
   
-    ImageSaver::saveImageAsPPM("test", getWindowSize().x, getWindowSize().y, frame);
+    ImageSaver::saveImageAsPPM(tracedFileName, getWindowSize().x, getWindowSize().y, frame);
 
     delete[] frame;
   }

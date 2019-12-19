@@ -29,7 +29,7 @@ namespace cgCourse
                                         int _action, int _mods)
         {
 
-            std::cout<<_button<<" "<<_action<<std::endl;
+            //std::cout<<_button<<" "<<_action<<std::endl;
             if (_action == 0){
                 mouseState = 0;
             }else if (_action ==1){
