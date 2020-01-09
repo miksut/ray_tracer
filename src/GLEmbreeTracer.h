@@ -22,10 +22,6 @@ namespace cgCourse
   class GLEmbreeTracer : public GLApp
   {
     public:
-      enum LightMotionMode {
-        Forward = 0, Backward  = 1
-      };
-
 	  enum ImageFormat {
 		  PPM = 0, PNG = 1
 	  };
@@ -54,10 +50,6 @@ namespace cgCourse
       std::shared_ptr<Texture> cubetex;
       std::shared_ptr<Texture> cubetexSpec;
       std::shared_ptr<Texture> cubeNormaltex;
-
-
-      float animation;
-      LightMotionMode animationDir;
 
       glm::mat4 mvpMatrix=glm::mat4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
 

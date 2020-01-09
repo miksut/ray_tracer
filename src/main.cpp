@@ -1,7 +1,6 @@
 #ifndef Example2_Main_h
 #define Example2_Main_h
 
-#include "GLExample.h"
 #include "GLEmbreeTracer.h"
 
 #include "parser.h"

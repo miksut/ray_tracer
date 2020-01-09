@@ -22,16 +22,12 @@ namespace cgCourse
     : GLApp(_windowSize, _title, _exepath, false)
   {
     this->mvpMatrix = glm::mat4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
-    this->animation = 0.0;
-    this->animationDir = Forward;
     GLApp::current = this;
   }
 
 
   bool GLEmbreeTracer::init()
   {
-    
-
     initGui(window_);
 
     connectVar("lightDiffuse", &light.diffuseTerm.x);
@@ -104,23 +100,6 @@ namespace cgCourse
 		std::string defaultName = "tracedImage";
 		strcpy(tracedFileName, defaultName.c_str());
 	}
-
-    if(animationDir == Forward)
-    {
-      if (animation > 1.5) {
-        animationDir = Backward;
-      } else {
-        animation += dt;
-      }
-    } else {
-      if (animation < -4.0) {
-        animationDir = Forward;
-      }
-      else {
-        animation -= dt;
-      }
-    }
-    this->lightbox->setPosition(glm::vec3(animation,5,-5));
 
     this->addLightVariables(programForMeshPhong);
     this->addLightVariables(programForMeshCook);
