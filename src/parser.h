@@ -24,11 +24,10 @@ namespace cgCourse {
         
     public:
         parser(GLEmbreeTracer* tracer, const std::string & file);
-        //scene * operator () (const std::string & file); // functor: parse the input file
+        std::shared_ptr<Scene> getScene();
         
     private:
         std::shared_ptr<Scene> scene;
-        
         
         void load_light(const unsigned & id);
         void load_material(const unsigned & id);

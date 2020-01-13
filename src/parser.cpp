@@ -9,7 +9,7 @@ namespace cgCourse {
     
     parser::parser(GLEmbreeTracer* tracer, const std::string & file) {
         
-        scene = std::make_shared<Scene>(tracer);
+        scene = std::make_shared<Scene>();
         
         string token;
         unsigned id;
@@ -30,7 +30,12 @@ namespace cgCourse {
             token = "";
         }
         
+        scene->InitializeViewPort(tracer);
         is.close();
+    }
+    
+    std::shared_ptr<Scene> parser::getScene(){
+        return this->scene;
     }
     
     void parser::load_light(const unsigned & id)
