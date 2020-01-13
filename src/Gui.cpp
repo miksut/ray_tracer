@@ -101,9 +101,6 @@ namespace cgCourse
 
       ImGui::Begin("Menu",NULL,ImGuiWindowFlags_NoMove);    // Create a window called "Menu" and append into it.
 
-
-      ImGui::Text("Light Color:");               // Display some text (you can use a format strings too)
-      ImGui::ColorEdit3("", (float *)getVar("lightDiffuse")); // Edit 3 floats representing a color
       ImGui::Separator();
       ImGui::Text("Camera Type:");
       ImGui::RadioButton("Arcball", (int *)getVar("cameraType"), 0); ImGui::SameLine();

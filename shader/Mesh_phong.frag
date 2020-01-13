@@ -38,7 +38,10 @@ uniform struct Light {
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
-} light;
+};
+
+uniform int lightCount;
+uniform Light lights[100];
 
 void main()
 {
@@ -55,11 +58,11 @@ void main()
 		normal = vertexNormal;
 	}
 
-	vec3 lightDir = normalize(light.position - worldPos);
+	vec3 lightDir = normalize(lights[0].position - worldPos);
 	float diffDot = max(dot(normal, lightDir), 0.0);
-	vec3 diffuseColor = diffDot * light.diffuse;
+	vec3 diffuseColor = diffDot * lights[0].diffuse;
 	float ambientFactor = 0.1f;
-	vec3 ambientColor = (light.ambient.xyz * mat.ka);
+	vec3 ambientColor = (lights[0].ambient.xyz * mat.ka);
 	vec3 colorMap = vec3 (0.7,0.5,0.5);
 	if (mat.ifTextureColor){
 		colorMap = vec3(texture(diffuseTexture,texCoord));
@@ -77,7 +80,7 @@ void main()
 		spec = 0;
 	}
 	float specStrength = 1.0;
-	vec3 specularColor = specStrength * spec * light.specular;
+	vec3 specularColor = specStrength * spec * lights[0].specular;
 
 
 	color = vec4((ambientColor + diffuseColor) * colorMap.rgb + (specularColor * specValue) + mat.illumination * mat.color, 1.0);
