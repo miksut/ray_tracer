@@ -6,6 +6,7 @@
 #include <vector>
 #include <iostream>
 #include <future>
+#include <map>
 
 #include <embree3/rtcore.h>
 #include "DrawableShape.h"
@@ -74,19 +75,31 @@ namespace cgCourse {
     {
         color(float r, float g, float b) : r(r), g(g), b(b) {};
         const float r, g, b;
+
+		glm::vec3 toGlm() const {
+			return glm::vec3(r, g, b);
+		}
     };
 
     struct vector3
     {
         vector3(float x, float y, float z) : x(x), y(y), z(z) {};
         const float x, y, z;
+
+		glm::vec3 toGlm() const {
+			return glm::vec3(x, y, z);
+		}
     };
 
     struct scene_element
     {
-        scene_element(const unsigned int id) : id(id) {};
+        scene_element(const unsigned int id) : id(id), embree_id(0) {};
         const unsigned id;
         unsigned int embree_id;
+
+		virtual void addVariables(unsigned i, const std::shared_ptr <ShaderProgram> & _program) {
+			//add variables for element i in array
+		}
     };
 
     // lights
@@ -139,7 +152,7 @@ namespace cgCourse {
     struct mixed_material : scene_element
     {
         mixed_material(const unsigned int id, color d, color spec, float s) : scene_element(id), diffuse(d), specular(spec), shininess(s) {};
-        //diffuse + specular = [1,1,1] has to hold!
+        //diffuse + specular <= [1,1,1] has to hold!
         const color diffuse;
         const color specular;
         const float shininess;
@@ -164,6 +177,7 @@ namespace cgCourse {
         mesh_object(const unsigned int id, unsigned mat_id, std::string f) : object(id, mat_id), filename(f) {};
         const std::string filename;
     };
+
     class GLEmbreeTracer;
     class Scene {
         RTCDevice device;
@@ -190,17 +204,26 @@ namespace cgCourse {
         
         void add_mesh_object(const unsigned& id, unsigned mat_id, std::string f);
         
-        void InitializeViewPort(GLEmbreeTracer* tracer);
+        void CommitScene(GLEmbreeTracer* tracer);
         
         RTCScene getRTCScene();
-        
-        std::future<float*> cast_rays(const glm::uvec2 & windows_size, const Camera & cam, const unsigned & samples = 1);
-    private:
+		
+		void draw(const glm::mat4& _projectionMatrix, const glm::mat4& _viewMatrix, std::shared_ptr<ShaderProgram> _shaderProgram);
+		
+		void addLightVariables(const std::shared_ptr<ShaderProgram>& _program);
+
+	private:
         unsigned add_sphere(const glm::vec4 & xyzr);
         unsigned add_mesh(const DrawableShape & mesh, const glm::mat4 & model_matrix = glm::mat4());
         
-        std::vector<scene_element*> elements;
-    };
+
+		std::map<unsigned, unsigned> embree2SceneId;
+
+		std::vector<Drawable*> drawables;
+		std::map<unsigned, std::shared_ptr<Material>> materials; //maps scene id to material
+        
+		std::vector<scene_element*> elements;
+	};
     
 }
 

@@ -30,7 +30,7 @@ namespace cgCourse {
             token = "";
         }
         
-        scene->InitializeViewPort(tracer);
+        scene->CommitScene(tracer);
         is.close();
     }
     

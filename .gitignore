@@ -117,3 +117,5 @@ install
 
 *.swp
 *.pdf
+*.ppm
+*.png
