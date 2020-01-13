@@ -49,24 +49,24 @@ void parser::load_light(const unsigned & id)
 
 	if(token == "P")
 	{
-		sc->add_possitional_light(id, ir, ig, ib, x, y, z);
+		sc->add_positional_light(id, color(ir, ig, ib), vector3(x, y, z));
 	}
 	
 	if(token == "D")
 	{
-		sc->add_directional_light(id, ir, ig, ib, x, y, z);
+		sc->add_directional_light(id, color(ir, ig, ib), vector3(x, y, z));
 	}
 	
 	if(token == "AC")
 	{
 		ss >> r;
-		sc->add_circular_area_light(id, ir, ig, ib, x, y, z, r);
+		sc->add_circular_area_light(id, color(ir, ig, ib), vector3(x, y, z), r);
 	}
 
 	if(token == "AR")
 	{
 		ss >> ux >> uy >> uz >> vx >> vy >> vz;
-		sc->add_rectangular_area_light(id, ir, ig, ib, x, y, z, ux, uy, uz, vx, vy, vz);
+		sc->add_rectangular_area_light(id, color(ir, ig, ib), vector3(x, y, z), vector3(ux, uy, uz), vector3(vx, vy, vz));
 	}
 }
 
@@ -83,19 +83,19 @@ void parser::load_material(const unsigned & id)
 	if(token == "D")
 	{
 		ss >> dr >> dg >> db;
-		sc->add_diffuse_material(id, dr, dg, db);
+		sc->add_diffuse_material(id, color(dr, dg, db));
 	}
 	
 	if(token == "S")
 	{
 		ss >> sr >> sg >> sb >> n;
-		sc->add_specular_material(id, sr, sg, sb);
+		sc->add_specular_material(id, color(sr, sg, sb), n);
 	}
 	
 	if(token == "B")
 	{
 		ss >> dr >> dg >> db >> sr >> sg >> sb >> n;
-		sc->add_mixed_material(id, dr, dg, db, sr, sg, sb, n);
+		sc->add_mixed_material(id, color(dr, dg, db), color(sr, sg, sb), n);
 	}
 }
 
@@ -116,13 +116,13 @@ void parser::load_object(const unsigned & id)
 	if(token == "S")
 	{
 		ss >> x >> y >> z >> r;
-		sc->add_sphere_object(id, id_mat, x, r, z, r);
+		sc->add_sphere_object(id, id_mat, vector3(x, y, z), r);
 	}
 	
 	if(token == "M")
 	{
 		ss >> filename;
-		sc->add_mesh_object(id, id_mat); // , filename);
+		sc->add_mesh_object(id, id_mat, filename);
 	}
 }
 
