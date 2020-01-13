@@ -12,9 +12,9 @@
 #include <assimp/DefaultLogger.hpp>
 #include <assimp/LogStream.hpp>
 #include "Gui.h"
+#include <memory>
 
 #include "embree.h"
-
 
 namespace cgCourse
 {
@@ -29,6 +29,8 @@ namespace cgCourse
   bool GLEmbreeTracer::init()
   {
     initGui(window_);
+      
+    _parser = std::make_shared<parser>(this, this->getPathToExecutable() + "sample_scene.cgl");
 
     connectVar("lightDiffuse", &light.diffuseTerm.x);
     connectVar("shadingAlgorithm", &shadingAlgorithm);

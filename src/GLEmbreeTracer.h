@@ -16,6 +16,7 @@
 #include "Mesh.h"
 #include "FrameBuffer.h"
 
+#include "parser.h"
 
 namespace cgCourse
 {
@@ -50,6 +51,8 @@ namespace cgCourse
       std::shared_ptr<Texture> cubetex;
       std::shared_ptr<Texture> cubetexSpec;
       std::shared_ptr<Texture> cubeNormaltex;
+      
+      std::shared_ptr<parser> _parser;
 
       glm::mat4 mvpMatrix=glm::mat4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
 
