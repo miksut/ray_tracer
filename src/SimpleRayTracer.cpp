@@ -5,7 +5,7 @@ namespace cgCourse {
         return std::async(SimpleRayTracer::trace, cam, scene, width, height, samples);
     }
     
-    float* SimpleRayTracer::trace(const Camera &cam, RTCScene scene, int width, int height, const unsigned int &samples){
+    float* SimpleRayTracer::trace(const Camera &cam, std::shared_ptr<Scene> scene, int width, int height, const unsigned int &samples){
         float * frame = new float[width * height * 3];
         
         float a = width / (float)height;
@@ -21,7 +21,7 @@ namespace cgCourse {
                 
                 auto ray = ray_hit(cam.getPosition(), s);
                 
-                if (intersect(scene, ray)) {
+                if (intersect(scene->getRTCScene(), ray)) {
                     frame[3 * (y * width + x)] = 1.0;
                     frame[3 * (y * width + x) + 1] = 1.0;
                     frame[3 * (y * width + x) + 2] = 1.0;

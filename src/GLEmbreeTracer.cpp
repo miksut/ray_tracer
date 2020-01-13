@@ -12,8 +12,9 @@
 #include <assimp/DefaultLogger.hpp>
 #include <assimp/LogStream.hpp>
 #include "Gui.h"
+#include <memory>
 
-#include "embree.h"
+#include "SimpleRayTracer.h"
 
 
 namespace cgCourse
@@ -29,7 +30,8 @@ namespace cgCourse
   bool GLEmbreeTracer::init()
   {
     initGui(window_);
-
+      
+    
     connectVar("lightDiffuse", &light.diffuseTerm.x);
     connectVar("shadingAlgorithm", &shadingAlgorithm);
 	connectVar("tracedFileName", &tracedFileName);
@@ -88,6 +90,10 @@ namespace cgCourse
     this->cubetexSpec->loadFromFile(this->getPathToExecutable() + "../../res/container_specular.png");
     this->cube->getMaterial()->specTexture = cubetexSpec;
 
+      
+    _parser = std::make_shared<parser>(this, this->getPathToExecutable() + "sample_scene.cgl");
+    _scene = _parser->getScene();
+    _scene->InitializeViewPort(this);
     return constructed;
   }
 
@@ -165,22 +171,15 @@ namespace cgCourse
 
   void GLEmbreeTracer::tracer()
   {
-    embree embree_render;
-
-    embree_render.add_sphere(sphere->xyzr);
-    embree_render.add_mesh(*cube, cube->getModelMatrix());
-
-    embree_render.build_bvh();
-
-    auto futureFrame = embree_render.cast_rays(getWindowSize(), cam);
-
-  
-    futureFrame.wait();
-    auto frame = futureFrame.get();
-  
-    ImageSaver::saveImageAsPPM(tracedFileName, getWindowSize().x, getWindowSize().y, frame);
-
-    delete[] frame;
+      auto tracer = std::make_shared<SimpleRayTracer>(getWindowSize().x, getWindowSize().y, _scene);
+      
+      auto futureImage = tracer->start(cam, 1);
+      futureImage.wait();
+      auto image = futureImage.get();
+      
+      ImageSaver::saveImageAsPPM(tracedFileName, getWindowSize().x, getWindowSize().y, image);
+      
+      delete[] image;
   }
 }
 
