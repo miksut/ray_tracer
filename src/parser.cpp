@@ -7,13 +7,15 @@ namespace cgCourse {
     using namespace std;
     
     
-    parser::parser(GLEmbreeTracer* tracer, const std::string & file) {
+    parser::parser(GLEmbreeTracer* tracer, const std::string & _pathToExe, std::string pathToFile) {
         
         scene = std::make_shared<Scene>();
         
+		this->pathToExe = _pathToExe;
+		std::string file = _pathToExe + pathToFile;
         string token;
         unsigned id;
-        
+
         is.open(file);
         
         while(read_line())
@@ -126,7 +128,7 @@ namespace cgCourse {
         if(token == "M")
         {
             ss >> filename;
-            scene->add_mesh_object(id, id_mat, filename);
+            scene->add_mesh_object(id, id_mat, filename, this->pathToExe + "../../res/PLY/");
         }
     }
     

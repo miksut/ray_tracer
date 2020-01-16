@@ -23,7 +23,7 @@ namespace cgCourse {
         std::istringstream ss;
         
     public:
-        parser(GLEmbreeTracer* tracer, const std::string & file);
+        parser(GLEmbreeTracer* tracer, const std::string & _pathToExe, std::string pathToFile);
         std::shared_ptr<Scene> getScene();
         
     private:
@@ -34,6 +34,8 @@ namespace cgCourse {
         void load_object(const unsigned & id);
         
         bool read_line(); // update line and ss
+
+		std::string pathToExe;
     };
 }
 

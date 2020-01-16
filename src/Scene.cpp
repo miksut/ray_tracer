@@ -20,7 +20,7 @@ namespace cgCourse {
         rtcReleaseScene(scene);
         rtcReleaseDevice(device);
     }
-    
+
     void Scene::add_positional_light(const unsigned& id, color c, vector3 pos){
         elements.push_back(new positional_light(id, c, pos));
     }
@@ -86,8 +86,19 @@ namespace cgCourse {
 		drawables.push_back(drawable);
     }
     
-    void Scene::add_mesh_object(const unsigned& id, unsigned mat_id, std::string f){
-        elements.push_back(new mesh_object(id, mat_id, f));
+    void Scene::add_mesh_object(const unsigned& id, unsigned mat_id, std::string f, std::string path){
+       
+		elements.push_back(new mesh_object(id, mat_id, f));
+
+		auto drawable = new Mesh();
+		drawable->createVertexArray(0, 1, 2, 3, 4);
+		drawable->load(path, f, true, false, true);
+		drawable->setPosition(glm::vec3(0.0));
+		drawable->setScaling(glm::vec3(1.0));
+		drawable->setMaterial(materials[mat_id]);
+		drawables.push_back(drawable);
+
+		embree2SceneId[add_mesh(*drawable->elements[0], drawable->getModelMatrix())] = id;
     }
     
     RTCScene Scene::getRTCScene(){
