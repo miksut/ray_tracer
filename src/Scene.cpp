@@ -1,6 +1,7 @@
 #include "Scene.h"
 
 #include "GLEmbreeTracer.h"
+#include <cmath>
 
 namespace cgCourse {
     
@@ -22,26 +23,22 @@ namespace cgCourse {
     }
 
     void Scene::add_positional_light(const unsigned& id, color c, vector3 pos){
-        elements.push_back(new positional_light(id, c, pos));
+        posLights.push_back(new positional_light(id, c, pos));
     }
     
     void Scene::add_directional_light(const unsigned & id, color c, vector3 pos){
-        elements.push_back(new directional_light(id, c, pos));
     }
     
     void Scene::add_circular_area_light(const unsigned& id, color c, vector3 pos, float r){
-        elements.push_back(new circular_area_light(id, c, pos, r));
     }
     
     void Scene::add_rectangular_area_light(const unsigned& id, color c, vector3 pos, vector3 h, vector3 v){
-        elements.push_back(new rectangular_area_light(id, c, pos, h, v));
     }
     
     void Scene::add_diffuse_material(const unsigned& id, color d){
-        elements.push_back(new diffuse_material(id, d));
 		
 		auto mat = std::make_shared<Material>();
-		mat->ka = glm::vec3(0.4);
+		mat->ka = glm::vec3(0.3);
 		mat->kd = d.toGlm();
 		mat->ks = glm::vec3(0);
 		mat->ns = 0;
@@ -50,10 +47,9 @@ namespace cgCourse {
     }
     
     void Scene::add_specular_material(const unsigned& id, color s, float n){
-        elements.push_back(new specular_material(id, s, n));
 
 		auto mat = std::make_shared<Material>();
-		mat->ka = glm::vec3(0.4);
+		mat->ka = glm::vec3(0.3);
 		mat->kd = glm::vec3(0);
 		mat->ks = s.toGlm();
 		mat->ns = n;
@@ -62,10 +58,9 @@ namespace cgCourse {
     }
     
     void Scene::add_mixed_material(const unsigned& id, color d, color s, float n){
-        elements.push_back(new mixed_material(id, d, s, n));
 
 		auto mat = std::make_shared<Material>();
-		mat->ka = glm::vec3(0.4);
+		mat->ka = glm::vec3(0.3);
 		mat->kd = d.toGlm();
 		mat->ks = s.toGlm();
 		mat->ns = n;
@@ -76,8 +71,7 @@ namespace cgCourse {
     void Scene::add_sphere_object(const unsigned& id, unsigned mat_id, vector3 pos, float r){
 		auto xyzr = glm::vec4(pos.x, pos.y, pos.z, r);
 		
-        elements.push_back(new sphere_object(id, mat_id, pos, r));
-		embree2SceneId[add_sphere(xyzr)] = id;
+		embree2DrawableShapeIndex[add_sphere(xyzr)] = drawables.size();
 
 		auto drawable = new Sphere(xyzr);
 		drawable->createVertexArray(0, 1, 2, 3, 4);
@@ -88,17 +82,16 @@ namespace cgCourse {
     
     void Scene::add_mesh_object(const unsigned& id, unsigned mat_id, std::string f, std::string path){
        
-		elements.push_back(new mesh_object(id, mat_id, f));
-
 		auto drawable = new Mesh();
 		drawable->createVertexArray(0, 1, 2, 3, 4);
 		drawable->load(path, f, true, false, true);
 		drawable->setPosition(glm::vec3(0.0));
 		drawable->setScaling(glm::vec3(1.0));
 		drawable->setMaterial(materials[mat_id]);
-		drawables.push_back(drawable);
-
-		embree2SceneId[add_mesh(*drawable->elements[0], drawable->getModelMatrix())] = id;
+		
+		embree2DrawableShapeIndex[add_mesh(*drawable->elements[0], drawable->getModelMatrix())] = drawables.size();
+        
+        drawables.push_back(drawable);
     }
     
     RTCScene Scene::getRTCScene(){
@@ -118,8 +111,8 @@ namespace cgCourse {
 	void Scene::addLightVariables(const std::shared_ptr<ShaderProgram>& _program) {
 		int lightCount = 0;
 
-		for (int i = 0; i < elements.size(); i++) {
-			auto pos_light = dynamic_cast<positional_light*>(elements[i]);
+		for (int i = 0; i < posLights.size(); i++) {
+			auto pos_light = static_cast<positional_light*>(posLights[i]);
 
 			if (pos_light != nullptr) {
 				auto startString = std::string("lights[") + std::to_string(lightCount) + std::string("]");
@@ -133,6 +126,37 @@ namespace cgCourse {
 		std::cout << "lightcount " << lightCount << std::endl;
 		_program->setUniformi("lightCount", lightCount);
 	}
+    
+    glm::vec3 Scene::shadeLocal(ray_hit &r){
+        
+        glm::vec3 output = glm::vec3(0,0,0);
+        
+        auto mat = drawables[r.hit.geomID]->getMaterial();
+        
+        //positional lights
+        for (int i = 0; i < posLights.size(); i++){
+            
+            glm::vec3 lightDir = glm::normalize(posLights[i]->position.toGlm() - r.intersectPos());
+            glm::vec3 lightColor = posLights[i]->intensity.toGlm();
+            
+            //diffuse
+            float diff = glm::max(glm::dot(r.normal(), lightDir), 0.0f);
+            auto diffuse = lightColor * diff * mat->kd;
+            
+            //specular
+            //auto reflectDir = glm::reflect(-lightDir, r.normal());
+            
+            auto viewDir = glm::normalize(glm::normalize(r.org() - r.intersectPos()));
+            auto halfWayDir = glm::normalize(lightDir + viewDir);
+            float spec = glm::pow(glm::max(glm::dot(r.normal(), halfWayDir), 0.0f), mat->ns);
+            auto specular = lightColor * spec * mat->ks;
+            
+            
+            output += (diffuse + specular);
+        }
+        glm::clamp(output, glm::vec3(0), glm::vec3(1));
+        return output;
+    }
     
     unsigned Scene::add_sphere(const glm::vec4 & xyzr)
     {

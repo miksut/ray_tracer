@@ -133,10 +133,17 @@ namespace cgCourse
 			  ImGui::Separator();
 
 			  ImGui::Text("Run a raytracer: ");
-			  if (GLApp::current && ImGui::Button("Raycaster", ImVec2(-1, 30)))
+			  if (GLApp::current && ImGui::Button("Simple", ImVec2(-1, 30)))
 			  {
 				  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->tracer();
 			  }
+              
+              if (GLApp::current && ImGui::Button("RayCaster", ImVec2(-1, 30)))
+              {
+                  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->rayCaster();
+              }
+              
+              
 		  }
 	  }
 
