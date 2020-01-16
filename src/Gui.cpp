@@ -137,17 +137,19 @@ namespace cgCourse
 			  {
 				  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->tracer();
 			  }
-              
+			  ImGui::Separator();
               if (GLApp::current && ImGui::Button("RayCaster", ImVec2(-1, 30)))
               {
                   dynamic_cast<GLEmbreeTracer*>(GLApp::current)->rayCaster();
               }
-              
+			  ImGui::Separator();
+			  static int recursions = 3;
+			  ImGui::InputInt("Recursions", &recursions);
               if (GLApp::current && ImGui::Button("Whitted", ImVec2(-1, 30)))
               {
-                  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->whittedTracer();
+                  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->whittedTracer(recursions);
               }
-              
+			  ImGui::Separator();
               
 		  }
 	  }

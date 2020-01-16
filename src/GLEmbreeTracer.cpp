@@ -39,8 +39,8 @@ namespace cgCourse
     // Framebuffer size and window size may be different in high-DPI displays
     // setup camera with standard view (static for our case)
     this->cam.create(this->getFramebufferSize(),this->getWindowSize(),
-                     glm::vec3(5, 5, -5),
-                     glm::vec3(0, 0, 0),
+                     glm::vec3(-1.16484225, -0.261180073, 2.25274158),
+                     glm::vec3(0.0834241360, 0.0566963330, 0.0555988140),
                      glm::vec3(0, 1, 0));
     InputManager::registerInputAcceptor(&cam);
     connectVar("cameraType", &cam.getType());
@@ -135,9 +135,9 @@ namespace cgCourse
         delete[] image;
     }
     
-    void GLEmbreeTracer::whittedTracer()
+    void GLEmbreeTracer::whittedTracer(int recursions)
     {
-        auto tracer = std::make_shared<WhittedTracer>(getWindowSize().x, getWindowSize().y, _scene);
+        auto tracer = std::make_shared<WhittedTracer>(getWindowSize().x, getWindowSize().y, _scene, recursions);
         
         auto futureImage = tracer->start(cam, 1);
         futureImage.wait();

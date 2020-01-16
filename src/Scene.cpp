@@ -132,7 +132,7 @@ namespace cgCourse {
 		_program->setUniformi("lightCount", lightCount);
 	}
     
-    glm::vec3 Scene::shadeLocal(ray_hit &r){
+    glm::vec3 Scene::shadeLocal(ray_hit &r, bool shadows){
         
         glm::vec3 output = glm::vec3(0,0,0);
         
@@ -156,39 +156,43 @@ namespace cgCourse {
             float spec = glm::pow(glm::max(glm::dot(r.normal(), halfWayDir), 0.0f), mat->ns);
             auto specular = lightColor * spec * mat->ks;
             
-            
-            output += (diffuse + specular);
+			//shadows
+			bool shadowed = false;
+
+			if (shadows) {
+				auto shadowRayDir = glm::normalize(posLights[i]->position.toGlm() - r.intersectPos());
+				auto ray = ray_hit(r.intersectPos() + (shadowRayDir * 0.001f), shadowRayDir);
+
+				if (intersect(ray)) {
+					if (ray.hit.geomID != r.hit.geomID) {
+						shadowed = true;
+					}
+				}
+			}
+			output += (1.0f - shadowed) * (diffuse + specular);
         }
-        output = glm::vec3(glm::clamp(output.x, 0.0f, 1.0f), glm::clamp(output.y, 0.0f, 1.0f), glm::clamp(output.z, 0.0f, 1.0f));
-        //glm::clamp(output, glm::vec3(0), glm::vec3(1));
+
         return output;
     }
     
-    glm::vec3 Scene::shadeWhitted(ray_hit &r){
+    glm::vec3 Scene::shadeWhitted(ray_hit &r, int n){
         glm::vec3 output = glm::vec3(0,0,0);
+		
+		output += shadeLocal(r, true);
+
+		if (n == 0) {
+			return output;
+		}
+
+		auto mat = drawables[embree2DrawableShapeIndex[r.hit.geomID]]->getMaterial();
+		
+		auto reflected = glm::normalize(glm::reflect(r.dir(), r.normal()));
+
+		auto reflected_ray = ray_hit(r.intersectPos() + (reflected * 0.001f), reflected);
+		if (intersect(reflected_ray)) {
+			output += (1.0f * mat->ks) * shadeWhitted(reflected_ray, n - 1);
+		}
         
-        
-        output = shadeLocal(r);
-       
-        
-        bool inShadow = true;
-        for (int i = 0; i < posLights.size(); i++){
-            
-            auto shadowRayDir = glm::normalize(posLights[i]->position.toGlm() - r.intersectPos());
-            auto ray = ray_hit(r.intersectPos() + (shadowRayDir * 0.001f), shadowRayDir);
-            
-            if (intersect(ray)){
-                inShadow &= true;
-            } else {
-                inShadow &= false;
-            }
-        }
-        
-        if (inShadow){
-            return glm::vec3(0,0,0);
-        }
-        
-        glm::clamp(output, glm::vec3(0), glm::vec3(1));
         return output;
     }
     

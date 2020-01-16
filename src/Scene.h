@@ -169,8 +169,8 @@ namespace cgCourse {
 		
 		void addLightVariables(const std::shared_ptr<ShaderProgram>& _program);
         
-        glm::vec3 shadeLocal(ray_hit &r);
-        glm::vec3 shadeWhitted(ray_hit &r);
+        glm::vec3 shadeLocal(ray_hit &r, bool shadows);
+        glm::vec3 shadeWhitted(ray_hit &r, int n);
         
 	private:
         unsigned add_sphere(const glm::vec4 & xyzr);

@@ -35,7 +35,7 @@ namespace cgCourse
       bool end() override;
       void tracer();
       void rayCaster();
-      void whittedTracer();
+      void whittedTracer(int recursions);
       
     private:
       std::shared_ptr<ShaderProgram> programForMeshPhong;

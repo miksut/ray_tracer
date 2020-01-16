@@ -24,9 +24,10 @@ namespace cgCourse {
                 
                 if (intersect(scene->getRTCScene(), ray)) {
                     
-                    auto rgb = scene->shadeLocal(ray);
+                    auto output = scene->shadeLocal(ray, false);
+					auto rgb = glm::vec3(glm::clamp(output.x, 0.0f, 1.0f), glm::clamp(output.y, 0.0f, 1.0f), glm::clamp(output.z, 0.0f, 1.0f));
                     
-                    frame[3 * (y * width + x)] = rgb.r;
+					frame[3 * (y * width + x)] = rgb.r;
                     frame[3 * (y * width + x) + 1] = rgb.g;
                     frame[3 * (y * width + x) + 2] = rgb.b;
                 }else{

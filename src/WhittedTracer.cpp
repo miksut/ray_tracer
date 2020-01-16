@@ -2,10 +2,10 @@
 
 namespace cgCourse {
     std::future<float*> WhittedTracer::start(const Camera &cam, const unsigned int &samples){
-        return std::async(WhittedTracer::trace, cam, scene, width, height, samples);
+        return std::async(WhittedTracer::trace, cam, scene, width, height, samples, recursions);
     }
     
-    float* WhittedTracer::trace(const Camera &cam, std::shared_ptr<Scene> scene, int width, int height, const unsigned int &samples){
+    float* WhittedTracer::trace(const Camera &cam, std::shared_ptr<Scene> scene, int width, int height, const unsigned int &samples, int recursions){
         float * frame = new float[width * height * 3];
         
         float a = width / (float)height;
@@ -23,7 +23,8 @@ namespace cgCourse {
                 
                 if (intersect(scene->getRTCScene(), ray)) {
                     
-                    auto rgb = scene->shadeWhitted(ray);
+					auto output = scene->shadeWhitted(ray, recursions);
+					auto rgb = glm::vec3(glm::clamp(output.x, 0.0f, 1.0f), glm::clamp(output.y, 0.0f, 1.0f), glm::clamp(output.z, 0.0f, 1.0f));
                     
                     frame[3 * (y * width + x)] = rgb.r;
                     frame[3 * (y * width + x) + 1] = rgb.g;
