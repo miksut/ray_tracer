@@ -143,6 +143,11 @@ namespace cgCourse
                   dynamic_cast<GLEmbreeTracer*>(GLApp::current)->rayCaster();
               }
               
+              if (GLApp::current && ImGui::Button("Whitted", ImVec2(-1, 30)))
+              {
+                  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->whittedTracer();
+              }
+              
               
 		  }
 	  }

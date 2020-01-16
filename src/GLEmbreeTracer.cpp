@@ -16,6 +16,7 @@
 
 #include "SimpleRayTracer.h"
 #include "RayCaster.h"
+#include "WhittedTracer.h"
 
 namespace cgCourse
 {
@@ -124,6 +125,19 @@ namespace cgCourse
     void GLEmbreeTracer::rayCaster()
     {
         auto tracer = std::make_shared<RayCaster>(getWindowSize().x, getWindowSize().y, _scene);
+        
+        auto futureImage = tracer->start(cam, 1);
+        futureImage.wait();
+        auto image = futureImage.get();
+        
+        ImageSaver::saveImageAsPPM(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);
+        
+        delete[] image;
+    }
+    
+    void GLEmbreeTracer::whittedTracer()
+    {
+        auto tracer = std::make_shared<WhittedTracer>(getWindowSize().x, getWindowSize().y, _scene);
         
         auto futureImage = tracer->start(cam, 1);
         futureImage.wait();

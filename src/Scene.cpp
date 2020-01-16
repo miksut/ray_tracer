@@ -24,6 +24,11 @@ namespace cgCourse {
 
     void Scene::add_positional_light(const unsigned& id, color c, vector3 pos){
         posLights.push_back(new positional_light(id, c, pos));
+        
+        auto drawable = new Sphere(glm::vec4(pos.toGlm(), 0.05));
+        
+        drawable->createVertexArray(0, 1, 2, 3, 4);
+        drawables.push_back(drawable);
     }
     
     void Scene::add_directional_light(const unsigned & id, color c, vector3 pos){
@@ -131,7 +136,7 @@ namespace cgCourse {
         
         glm::vec3 output = glm::vec3(0,0,0);
         
-        auto mat = drawables[r.hit.geomID]->getMaterial();
+        auto mat = drawables[embree2DrawableShapeIndex[r.hit.geomID]]->getMaterial();
         
         //positional lights
         for (int i = 0; i < posLights.size(); i++){
@@ -154,6 +159,35 @@ namespace cgCourse {
             
             output += (diffuse + specular);
         }
+        output = glm::vec3(glm::clamp(output.x, 0.0f, 1.0f), glm::clamp(output.y, 0.0f, 1.0f), glm::clamp(output.z, 0.0f, 1.0f));
+        //glm::clamp(output, glm::vec3(0), glm::vec3(1));
+        return output;
+    }
+    
+    glm::vec3 Scene::shadeWhitted(ray_hit &r){
+        glm::vec3 output = glm::vec3(0,0,0);
+        
+        
+        output = shadeLocal(r);
+       
+        
+        bool inShadow = true;
+        for (int i = 0; i < posLights.size(); i++){
+            
+            auto shadowRayDir = glm::normalize(posLights[i]->position.toGlm() - r.intersectPos());
+            auto ray = ray_hit(r.intersectPos() + (shadowRayDir * 0.001f), shadowRayDir);
+            
+            if (intersect(ray)){
+                inShadow &= true;
+            } else {
+                inShadow &= false;
+            }
+        }
+        
+        if (inShadow){
+            return glm::vec3(0,0,0);
+        }
+        
         glm::clamp(output, glm::vec3(0), glm::vec3(1));
         return output;
     }
@@ -203,5 +237,13 @@ namespace cgCourse {
         rtcReleaseGeometry(geom);
         
         return geom_id;
+    }
+    
+    bool Scene::intersect(ray_hit &r){
+        RTCIntersectContext context;
+        rtcInitIntersectContext(&context);
+        rtcIntersect1(scene, &context, &r);
+        
+        return r.hit.geomID != RTC_INVALID_GEOMETRY_ID;
     }
 }

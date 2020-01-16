@@ -170,11 +170,13 @@ namespace cgCourse {
 		void addLightVariables(const std::shared_ptr<ShaderProgram>& _program);
         
         glm::vec3 shadeLocal(ray_hit &r);
+        glm::vec3 shadeWhitted(ray_hit &r);
         
 	private:
         unsigned add_sphere(const glm::vec4 & xyzr);
         unsigned add_mesh(const DrawableShape & mesh, const glm::mat4 & model_matrix = glm::mat4());
-
+        bool intersect(ray_hit &r);
+        
 		std::map<unsigned, unsigned> embree2DrawableShapeIndex;
 
 		std::vector<DrawableShape*> drawables;
