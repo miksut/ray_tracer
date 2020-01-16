@@ -34,6 +34,7 @@ namespace cgCourse
       bool render() override;
       bool end() override;
       void tracer();
+      void rayCaster();
       
     private:
       std::shared_ptr<ShaderProgram> programForMeshPhong;

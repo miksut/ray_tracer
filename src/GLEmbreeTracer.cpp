@@ -15,7 +15,7 @@
 #include <memory>
 
 #include "SimpleRayTracer.h"
-
+#include "RayCaster.h"
 
 namespace cgCourse
 {
@@ -48,7 +48,7 @@ namespace cgCourse
     programForMeshPhong = std::make_shared<ShaderProgram>(this->getPathToExecutable() + "../../shader/Mesh_phong");
     programForMeshBlinn = std::make_shared<ShaderProgram>(this->getPathToExecutable() + "../../shader/Mesh_blinn");
 
-    _parser = std::make_shared<parser>(this, this->getPathToExecutable(), "../../res/scenes/pointlights_spheres.cgl");
+    _parser = std::make_shared<parser>(this, this->getPathToExecutable(), "../../res/scenes/pointlights_spheres_meshes.cgl");
     _scene = _parser->getScene();
 
 	_scene->addLightVariables(programForMeshBlinn);
@@ -120,5 +120,18 @@ namespace cgCourse
       
       delete[] image;
   }
+
+    void GLEmbreeTracer::rayCaster()
+    {
+        auto tracer = std::make_shared<RayCaster>(getWindowSize().x, getWindowSize().y, _scene);
+        
+        auto futureImage = tracer->start(cam, 1);
+        futureImage.wait();
+        auto image = futureImage.get();
+        
+        ImageSaver::saveImageAsPPM(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);
+        
+        delete[] image;
+    }
 }
 

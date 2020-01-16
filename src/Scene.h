@@ -62,12 +62,17 @@ namespace cgCourse {
         
         const glm::vec3 dir() const
         {
-            return {ray.dir_x, ray.dir_y, ray.dir_z};
+            return glm::normalize(glm::vec3(ray.dir_x, ray.dir_y, ray.dir_z));
         }
         
         const glm::vec3 normal() const
         {
-            return {hit.Ng_x, hit.Ng_y, hit.Ng_z};
+            return glm::normalize(glm::vec3(hit.Ng_x, hit.Ng_y, hit.Ng_z));
+        }
+        
+        const glm::vec3 intersectPos() const
+        {
+            return org() + ray.tfar * dir();
         }
     };
 
@@ -91,91 +96,43 @@ namespace cgCourse {
 		}
     };
 
-    struct scene_element
+    struct light
     {
-        scene_element(const unsigned int id) : id(id), embree_id(0) {};
+        light(const unsigned int id) : id(id) {};
         const unsigned id;
-        unsigned int embree_id;
-
-		virtual void addVariables(unsigned i, const std::shared_ptr <ShaderProgram> & _program) {
-			//add variables for element i in array
-		}
     };
 
     // lights
-    struct positional_light : scene_element
+    struct positional_light : light
     {
-        positional_light(const unsigned int id, color i, vector3 p) : scene_element(id), intensity(i), position(p) {};
+        positional_light(const unsigned int id, color i, vector3 p) : light(id), intensity(i), position(p) {};
         const color intensity;
         const vector3 position;
     };
 
-    struct directional_light : scene_element
+    struct directional_light : light
     {
-        directional_light(const unsigned int id, color i, vector3 d) : scene_element(id), intensity(i), direction(d) {};
+        directional_light(const unsigned int id, color i, vector3 d) : light(id), intensity(i), direction(d) {};
         const color intensity;
         const vector3 direction;
     };
 
-    struct circular_area_light : scene_element
+    struct circular_area_light : light
     {
-        circular_area_light(const unsigned int id, color i, vector3 p, float r) : scene_element(id), intensity(i), position(p), radius(r) {};
+        circular_area_light(const unsigned int id, color i, vector3 p, float r) : light(id), intensity(i), position(p), radius(r) {};
         const color intensity;
         const vector3 position;
         const float radius;
     };
 
-    struct rectangular_area_light : scene_element
+    struct rectangular_area_light : light
     {
-        rectangular_area_light(const unsigned int id, color i, vector3 p, vector3 h, vector3 v) : scene_element(id), intensity(i), position(p), horizontal_half_axis(h), vertical_half_axis(v) {};
+        rectangular_area_light(const unsigned int id, color i, vector3 p, vector3 h, vector3 v) : light(id), intensity(i), position(p), horizontal_half_axis(h), vertical_half_axis(v) {};
         const color intensity;
         const vector3 position;
         
         const vector3 horizontal_half_axis;
         const vector3 vertical_half_axis;
-    };
-
-    // materials
-    struct diffuse_material : scene_element
-    {
-        diffuse_material(const unsigned int id, color d) : scene_element(id), diffuse(d) {};
-        const color diffuse;
-    };
-
-    struct specular_material : scene_element
-    {
-        specular_material(const unsigned int id, color spec, float s) : scene_element(id), specular(spec), shininess(s) {};
-        const color specular;
-        const float shininess;
-    };
-
-    struct mixed_material : scene_element
-    {
-        mixed_material(const unsigned int id, color d, color spec, float s) : scene_element(id), diffuse(d), specular(spec), shininess(s) {};
-        //diffuse + specular <= [1,1,1] has to hold!
-        const color diffuse;
-        const color specular;
-        const float shininess;
-    };
-
-    // objects
-
-    struct object : scene_element
-    {
-        object(const unsigned int id, unsigned mat_id) : scene_element(id), material_id(mat_id) {};
-        const unsigned material_id;
-    };
-    struct sphere_object : object
-    {
-        sphere_object(const unsigned int id, unsigned mat_id, vector3 pos, float r) : object(id, mat_id), position(pos), radius(r) {};
-        const vector3 position;
-        const float radius;
-    };
-
-    struct mesh_object : object
-    {
-        mesh_object(const unsigned int id, unsigned mat_id, std::string f) : object(id, mat_id), filename(f) {};
-        const std::string filename;
     };
 
     class GLEmbreeTracer;
@@ -211,18 +168,19 @@ namespace cgCourse {
 		void draw(const glm::mat4& _projectionMatrix, const glm::mat4& _viewMatrix, std::shared_ptr<ShaderProgram> _shaderProgram);
 		
 		void addLightVariables(const std::shared_ptr<ShaderProgram>& _program);
-
+        
+        glm::vec3 shadeLocal(ray_hit &r);
+        
 	private:
         unsigned add_sphere(const glm::vec4 & xyzr);
         unsigned add_mesh(const DrawableShape & mesh, const glm::mat4 & model_matrix = glm::mat4());
-        
 
-		std::map<unsigned, unsigned> embree2SceneId;
+		std::map<unsigned, unsigned> embree2DrawableShapeIndex;
 
 		std::vector<DrawableShape*> drawables;
 		std::map<unsigned, std::shared_ptr<Material>> materials; //maps scene id to material
         
-		std::vector<scene_element*> elements;
+		std::vector<positional_light*> posLights;
 	};
     
 }
