@@ -202,7 +202,7 @@ namespace cgCourse {
         
         void add_sphere_object(const unsigned& id, unsigned mat_id, vector3 pos, float r);
         
-        void add_mesh_object(const unsigned& id, unsigned mat_id, std::string f);
+        void add_mesh_object(const unsigned& id, unsigned mat_id, std::string f, std::string path);
         
         void CommitScene(GLEmbreeTracer* tracer);
         
@@ -219,7 +219,7 @@ namespace cgCourse {
 
 		std::map<unsigned, unsigned> embree2SceneId;
 
-		std::vector<Drawable*> drawables;
+		std::vector<DrawableShape*> drawables;
 		std::map<unsigned, std::shared_ptr<Material>> materials; //maps scene id to material
         
 		std::vector<scene_element*> elements;

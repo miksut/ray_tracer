@@ -48,7 +48,7 @@ namespace cgCourse
     programForMeshPhong = std::make_shared<ShaderProgram>(this->getPathToExecutable() + "../../shader/Mesh_phong");
     programForMeshBlinn = std::make_shared<ShaderProgram>(this->getPathToExecutable() + "../../shader/Mesh_blinn");
 
-    _parser = std::make_shared<parser>(this, this->getPathToExecutable() + "../../res/scenes/pointlights_spheres.cgl");
+    _parser = std::make_shared<parser>(this, this->getPathToExecutable(), "../../res/scenes/pointlights_spheres.cgl");
     _scene = _parser->getScene();
 
 	_scene->addLightVariables(programForMeshBlinn);
