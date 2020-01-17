@@ -128,7 +128,7 @@ namespace cgCourse
 			  ImGui::Text("Format: "); ImGui::SameLine();
 
 			  ImGui::RadioButton("PPM", (int *)getVar("imageFormat"), 0); ImGui::SameLine();
-			  //ImGui::RadioButton("PNG", (int *)getVar("imageFormat"), 1); ImGui::SameLine();
+			  ImGui::RadioButton("PNG", (int *)getVar("imageFormat"), 1); ImGui::SameLine();
 
 			  ImGui::Separator();
 

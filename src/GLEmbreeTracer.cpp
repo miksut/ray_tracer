@@ -117,8 +117,11 @@ namespace cgCourse
       futureImage.wait();
       auto image = futureImage.get();
       
-      ImageSaver::saveImageAsPPM(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);
-      
+	  if (this->imageFormat == 0) {
+		  ImageSaver::saveImageAsPPM(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);}
+	  else {
+		  ImageSaver::saveImageAsPNG(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);};
+
       delete[] image;
   }
 
@@ -130,8 +133,11 @@ namespace cgCourse
         futureImage.wait();
         auto image = futureImage.get();
         
-        ImageSaver::saveImageAsPPM(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);
-        
+		if (this->imageFormat == 0) {
+			ImageSaver::saveImageAsPPM(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);}
+		else {
+			ImageSaver::saveImageAsPNG(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);};
+
         delete[] image;
     }
     
@@ -143,9 +149,12 @@ namespace cgCourse
         futureImage.wait();
         auto image = futureImage.get();
         
-        ImageSaver::saveImageAsPPM(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);
+		if (this->imageFormat == 0) {
+			ImageSaver::saveImageAsPPM(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);}
+		else {
+			ImageSaver::saveImageAsPNG(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);};
         
-        delete[] image;
+		delete[] image;
     }
 }
 

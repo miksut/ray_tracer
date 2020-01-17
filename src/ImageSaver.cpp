@@ -24,4 +24,26 @@ namespace cgCourse {
 
 		myfile.close();
 	}
+
+	void ImageSaver::saveImageAsPNG(std::string fileName, int width, int height, float* data) {
+		FreeImage_Initialise();
+
+		FIBITMAP* bitmap = FreeImage_Allocate(width, height, 24);
+		RGBQUAD col;
+
+		if (!bitmap) {
+			exit(1);}
+
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				col.rgbRed = data[3 * (y * width + x)] * 255.99;
+				col.rgbGreen = data[3 * (y * width + x) + 1] * 255.99;
+				col.rgbBlue = data[3 * (y * width + x) + 2] * 255.99;
+				FreeImage_SetPixelColor(bitmap, x, height - y, &col);
+			}
+		}
+
+		FreeImage_Save(FIF_PNG, bitmap, (fileName + ".png").c_str(), 0);
+		FreeImage_DeInitialise();
+	}
 }
