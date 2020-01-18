@@ -12,6 +12,7 @@
 #include "DrawableShape.h"
 #include "Camera.h"
 
+#include "Room.h"
 
 namespace cgCourse {
     
@@ -160,6 +161,8 @@ namespace cgCourse {
         void add_sphere_object(const unsigned& id, unsigned mat_id, vector3 pos, float r);
         
         void add_mesh_object(const unsigned& id, unsigned mat_id, std::string f, std::string path);
+
+		void add_room_object(const unsigned& id, unsigned mat_id, float scale, vector3 pos);
         
         void CommitScene(GLEmbreeTracer* tracer);
         
@@ -175,7 +178,8 @@ namespace cgCourse {
 	private:
         unsigned add_sphere(const glm::vec4 & xyzr);
         unsigned add_mesh(const DrawableShape & mesh, const glm::mat4 & model_matrix = glm::mat4());
-        bool intersect(ray_hit &r);
+		unsigned add_room(const Room & room, const glm::mat4 & model_matrix);
+		bool intersect(ray_hit &r);
         
 		std::map<unsigned, unsigned> embree2DrawableShapeIndex;
 
@@ -186,6 +190,5 @@ namespace cgCourse {
 	};
     
 }
-
 
 #endif /* Scene_hpp */

@@ -112,6 +112,7 @@ namespace cgCourse {
         string token, filename;
         unsigned id_mat;
         float x, y, z, r;
+		float scale;
         
         read_line();
         ss >> id_mat;
@@ -130,6 +131,12 @@ namespace cgCourse {
             ss >> filename;
             scene->add_mesh_object(id, id_mat, filename, this->pathToExe + "../../res/PLY/");
         }
+
+		if (token == "R")
+		{
+			ss >> scale >> x >> y >> z;
+			scene->add_room_object(id, id_mat, scale, vector3(x,y,z));
+		}
     }
     
     bool parser::read_line()

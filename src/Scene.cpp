@@ -98,6 +98,19 @@ namespace cgCourse {
         
         drawables.push_back(drawable);
     }
+
+	void Scene::add_room_object(const unsigned& id, unsigned mat_id, float scale, vector3 pos) {
+
+		auto drawable = new Room();
+		drawable->createVertexArray(0, 1, 2, 3, 4);
+		drawable->setScaling(glm::vec3(scale));
+		drawable->setPosition(pos.toGlm());
+		drawable->setMaterial(materials[mat_id]);
+
+		embree2DrawableShapeIndex[add_mesh(*drawable, drawable->getModelMatrix())] = drawables.size();
+		
+		drawables.push_back(drawable);
+	}
     
     RTCScene Scene::getRTCScene(){
         return scene;
@@ -242,7 +255,37 @@ namespace cgCourse {
         
         return geom_id;
     }
-    
+
+	unsigned Scene::add_room(const Room & room, const glm::mat4 & model_matrix)
+	{
+		RTCGeometry geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_TRIANGLE);
+
+		const std::vector<glm::vec3> & positions = room.getPositions();
+		glm::vec3 * vertices = (glm::vec3 *) rtcSetNewGeometryBuffer(geom,
+			RTC_BUFFER_TYPE_VERTEX, 0,
+			RTC_FORMAT_FLOAT3, 3 * sizeof(float),
+			positions.size());
+
+		const std::vector<glm::uvec3> & faces = room.getFaces();
+		glm::uvec3 * tri_idxs = (glm::uvec3 *) rtcSetNewGeometryBuffer(geom,
+			RTC_BUFFER_TYPE_INDEX, 0,
+			RTC_FORMAT_UINT3, 3 * sizeof(int),
+			faces.size());
+
+		for (unsigned i = 0; i < positions.size(); i++)
+			vertices[i] = glm::vec3(model_matrix * glm::vec4(positions[i], 1.f));
+
+		for (unsigned i = 0; i < faces.size(); i++)
+			tri_idxs[i] = faces[i];
+
+		rtcCommitGeometry(geom);
+
+		unsigned geom_id = rtcAttachGeometry(scene, geom);
+		rtcReleaseGeometry(geom);
+
+		return geom_id;
+	}
+
     bool Scene::intersect(ray_hit &r){
         RTCIntersectContext context;
         rtcInitIntersectContext(&context);

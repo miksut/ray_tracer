@@ -20,3 +20,7 @@ S 1.0 1 0.4 0.75
 O 23
 10
 M bunny.ply
+O 24
+10
+R 4.0 0.0 0.0 0.0		# simple room object (-> R) scaled by factor s (-> 3.0) and centerd on [x,y,z]
+
