@@ -93,8 +93,8 @@ namespace cgCourse {
 		auto drawable = new Mesh();
 		drawable->createVertexArray(0, 1, 2, 3, 4);
 		drawable->load(path, f, true, false, true);
-		drawable->setPosition(glm::vec3(0.0));
-		drawable->setScaling(glm::vec3(1.0));
+		drawable->setPosition(glm::vec3(6.0, -11.0, -3.0));
+		drawable->setScaling(glm::vec3(30.0));
 		drawable->setMaterial(materials[mat_id]);
 		
 		embree2DrawableShapeIndex[add_mesh(*drawable->elements[0], drawable->getModelMatrix())] = drawables.size();
@@ -102,9 +102,9 @@ namespace cgCourse {
         drawables.push_back(drawable);
     }
 
-	void Scene::add_room_object(const unsigned& id, unsigned mat_id, float scale, vector3 pos) {
+	void Scene::add_room_object(const unsigned& id, unsigned mat_id, float scale, vector3 pos, vector3 col, std::vector<float> element) {
 
-		auto drawable = new Room();
+		auto drawable = new Room(element, materials[mat_id]);
 		drawable->createVertexArray(0, 1, 2, 3, 4);
 		drawable->setScaling(glm::vec3(scale));
 		drawable->setPosition(pos.toGlm());
@@ -305,36 +305,6 @@ namespace cgCourse {
         
         return geom_id;
     }
-
-	unsigned Scene::add_room(const Room & room, const glm::mat4 & model_matrix)
-	{
-		RTCGeometry geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_TRIANGLE);
-
-		const std::vector<glm::vec3> & positions = room.getPositions();
-		glm::vec3 * vertices = (glm::vec3 *) rtcSetNewGeometryBuffer(geom,
-			RTC_BUFFER_TYPE_VERTEX, 0,
-			RTC_FORMAT_FLOAT3, 3 * sizeof(float),
-			positions.size());
-
-		const std::vector<glm::uvec3> & faces = room.getFaces();
-		glm::uvec3 * tri_idxs = (glm::uvec3 *) rtcSetNewGeometryBuffer(geom,
-			RTC_BUFFER_TYPE_INDEX, 0,
-			RTC_FORMAT_UINT3, 3 * sizeof(int),
-			faces.size());
-
-		for (unsigned i = 0; i < positions.size(); i++)
-			vertices[i] = glm::vec3(model_matrix * glm::vec4(positions[i], 1.f));
-
-		for (unsigned i = 0; i < faces.size(); i++)
-			tri_idxs[i] = faces[i];
-
-		rtcCommitGeometry(geom);
-
-		unsigned geom_id = rtcAttachGeometry(scene, geom);
-		rtcReleaseGeometry(geom);
-
-		return geom_id;
-	}
 
     bool Scene::intersect(ray_hit &r){
         RTCIntersectContext context;

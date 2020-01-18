@@ -110,9 +110,9 @@ namespace cgCourse {
         fprintf(stderr, "LOADING Object %d\n", id);
         
         string token, filename;
-        unsigned id_mat;
+        unsigned id_mat, id_mat1, id_mat2, id_mat3, id_mat4;
         float x, y, z, r;
-		float scale;
+		float scale, rd, gr, bl;
         
         read_line();
         ss >> id_mat;
@@ -134,8 +134,23 @@ namespace cgCourse {
 
 		if (token == "R")
 		{
-			ss >> scale >> x >> y >> z;
-			scene->add_room_object(id, id_mat, scale, vector3(x,y,z));
+			ss >> scale >> x >> y >> z >> rd >> gr >> bl;
+			read_line();
+			ss >> id_mat1 >> id_mat2 >> id_mat3 >> id_mat4;
+			std::vector<unsigned> id_mats = { id_mat, id_mat1, id_mat2, id_mat3, id_mat4 };
+
+			auto room = new RoomElements;
+			std::map<int, std::vector<float>> int2roomElement;
+			int2roomElement.insert(pair<int, std::vector<float>>(0, room->element0));
+			int2roomElement.insert(pair<int, std::vector<float>>(1, room->element1));
+			int2roomElement.insert(pair<int, std::vector<float>>(2, room->element2));
+			int2roomElement.insert(pair<int, std::vector<float>>(3, room->element3));
+			int2roomElement.insert(pair<int, std::vector<float>>(4, room->element4));
+			std::map<int, std::vector<float>>::iterator it;
+
+			for (it = int2roomElement.begin(); it != int2roomElement.end(); it++) {
+				scene->add_room_object(id+it->first, id_mats[it->first], scale, vector3(x,y,z), vector3(rd,gr,bl), it->second);
+			}
 		}
     }
     

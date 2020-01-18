@@ -8,11 +8,22 @@
 #include <functional>
 #include <string>
 #include <memory>
+#include <map>
 
 #include "Scene.h"
 
 
 namespace cgCourse {
+
+	struct RoomElements 
+	{
+			std::vector<float> element0 = { -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0, 3.0, 2.0, 2.0, 1.0, 0.0, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f};
+			std::vector<float> element1 = { 1.0f, 1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0, 3.0, 2.0, 2.0, 1.0, 0.0, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f};
+			std::vector<float> element2 = { -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0, 3.0, 2.0, 2.0, 1.0, 0.0, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f };
+			std::vector<float> element3 = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0, 3.0, 2.0, 2.0, 1.0, 0.0, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f };
+			std::vector<float> element4 = { -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0, 3.0, 2.0, 2.0, 1.0, 0.0, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f };
+	};
+
     class GLEmbreeTracer;
     class parser
     {

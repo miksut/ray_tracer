@@ -2,146 +2,48 @@
 
 namespace cgCourse
 {
-	Room::Room() : DrawableShape()
+	Room::Room(std::vector<float> element, std::shared_ptr<Material> mat) : DrawableShape()
 	{
 		// set geometry with respect to local origin
 		this->positions = {
-			{ -1.0f, -1.0f, -1.0f },   // index 0
-			{ -1.0f, -1.0f, 1.0f },
-			{ -1.0f, 1.0f, 1.0f },
-			{ -1.0f, 1.0f, -1.0f },
-
-			{ 1.0f, 1.0f, 1.0f },      // index 4
-			{ 1.0f, -1.0f, 1.0f },
-			{ 1.0f, -1.0f, -1.0f },
-			{ 1.0f, 1.0f, -1.0f },
-
-			{ -1.0f, -1.0f, -1.0f },   // index 8
-			{ 1.0f, -1.0f, -1.0f },
-			{ 1.0f, -1.0f, 1.0f },
-			{ -1.0f, -1.0f, 1.0f },
-
-			{ 1.0f, 1.0f, 1.0f },      // index 12
-			{ 1.0f, 1.0f, -1.0f },
-			{ -1.0f, 1.0f, -1.0f },
-			{ -1.0f, 1.0f, 1.0f },
-
-			{ -1.0f, -1.0f, -1.0f },   // index 16
-			{ -1.0f, 1.0f, -1.0f },
-			{ 1.0f, 1.0f, -1.0f },
-			{ 1.0f, -1.0f, -1.0f }
+			{ element[0], element[1], element[2] },   // index 0
+			{ element[3], element[4], element[5] },
+			{ element[6], element[7], element[8] },
+			{ element[9], element[10], element[11] }
 		};
 
 		this->colors = {
-			{ 0.8f, 0.8f, 0.0f },
-			{ 0.8f, 0.8f, 0.0f },
-			{ 0.8f, 0.8f, 0.0f },
-			{ 0.8f, 0.8f, 0.0f },
 
-			{ 0.8f, 0.0f, 0.0f },
-			{ 0.8f, 0.0f, 0.0f },
-			{ 0.8f, 0.0f, 0.0f },
-			{ 0.8f, 0.0f, 0.0f },
-
-			{ 0.0f, 0.8f, 0.0f },
-			{ 0.0f, 0.8f, 0.0f },
-			{ 0.0f, 0.8f, 0.0f },
-			{ 0.0f, 0.8f, 0.0f },
-
-			{ 0.0f, 0.0f, 0.8f },
-			{ 0.0f, 0.0f, 0.8f },
-			{ 0.0f, 0.0f, 0.8f },
-			{ 0.0f, 0.0f, 0.8f },
-
-			{ 0.0f, 0.8f, 0.8f },
-			{ 0.0f, 0.8f, 0.8f },
-			{ 0.0f, 0.8f, 0.8f },
-			{ 0.0f, 0.8f, 0.8f }
+			{ mat->kd.r + mat->ka.r, mat->kd.g + mat->ka.g, mat->kd.b + mat->ka.b },
+			{ mat->kd.r + mat->ka.r, mat->kd.g + mat->ka.g, mat->kd.b + mat->ka.b },
+			{ mat->kd.r + mat->ka.r, mat->kd.g + mat->ka.g, mat->kd.b + mat->ka.b },
+			{ mat->kd.r + mat->ka.r, mat->kd.g + mat->ka.g, mat->kd.b + mat->ka.b }
 		};
 
 		this->normals = {
-			{ 1.0f, 0.0f, 0.0f },
-			{ 1.0f, 0.0f, 0.0f },
-			{ 1.0f, 0.0f, 0.0f },
-			{ 1.0f, 0.0f, 0.0f },
-
-			{ -1.0f, 0.0f, 0.0f },
-			{ -1.0f, 0.0f, 0.0f },
-			{ -1.0f, 0.0f, 0.0f },
-			{ -1.0f, 0.0f, 0.0f },
-
-			{ 0.0f, 1.0f, 0.0f },
-			{ 0.0f, 1.0f, 0.0f },
-			{ 0.0f, 1.0f, 0.0f },
-			{ 0.0f, 1.0f, 0.0f },
-
-			{ 0.0f, -1.0f, 0.0f },
-			{ 0.0f, -1.0f, 0.0f },
-			{ 0.0f, -1.0f, 0.0f },
-			{ 0.0f, -1.0f, 0.0f },
-
-			{ 0.0f, 0.0f, 1.0f },
-			{ 0.0f, 0.0f, 1.0f },
-			{ 0.0f, 0.0f, 1.0f },
-			{ 0.0f, 0.0f, 1.0f }
+			{ element[12], element[13], element[14] },
+			{ element[12], element[13], element[14] },
+			{ element[12], element[13], element[14] },
+			{ element[12], element[13], element[14] }
 		};
 
 		this->texCoords = {
-			{ 0.0f, 0.0f },
-			{ 0.0f, 1.0f },
-			{ 1.0f, 1.0f },
-			{ 1.0f, 0.0f },
-
-			{ 0.0f, 0.0f },
-			{ 0.0f, 1.0f },
-			{ 1.0f, 1.0f },
-			{ 1.0f, 0.0f },
-
-			{ 0.0f, 0.0f },
-			{ 0.0f, 1.0f },
-			{ 1.0f, 1.0f },
-			{ 1.0f, 0.0f },
-
-			{ 0.0f, 0.0f },
-			{ 0.0f, 1.0f },
-			{ 1.0f, 1.0f },
-			{ 1.0f, 0.0f },
-
-			{ 0.0f, 0.0f },
-			{ 0.0f, 1.0f },
-			{ 1.0f, 1.0f },
-			{ 1.0f, 0.0f }
+			{ element[15], element[16] },
+			{ element[17], element[18] },
+			{ element[19], element[20] },
+			{ element[21], element[22] },
 		};
 
 		this->faces = {
-			{ 0, 3, 2 }, { 2, 1, 0 },
-			{ 4, 7, 6 }, { 6, 5, 4 },
-			{ 8, 11, 10 }, { 10, 9, 8 },
-			{ 12, 15, 14 }, { 14, 13, 12 },
-			{ 16, 19, 18 }, { 18, 17, 16 }
+			{ element[23], element[24], element[25] }, { element[26], element[27], element[28] },
 		};
 
 		this->faceNormals = {
-			{ -1.0f, 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f },
-			{ 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f },
-			{ 0.0f, -1.0f, 0.0f }, { 0.0f, -1.0f, 0.0f },
-			{ 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f },
-			{ 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f, -1.0f }
+			{ element[29], element[30], element[31] }, { element[32], element[33], element[34] },
 		};
         
         this->primitiveType = triangle;
         
         this->setMaterial(std::make_shared<Material>());
-        
-        int i = 0;   
-        for (i = 0; i < 8; i++){
-            this->tangents.push_back({ 0.0f, 1.0f, 0.0f });
-        }
-        for (i = 8; i < 16; i++){
-            this->tangents.push_back({ 1.0f, 0.0f, 0.0f });
-        }
-        for (i = 16; i < 20; i++){
-            this->tangents.push_back({ 1.0f, 0.0f, 0.0f });
-        }
 	}
 }
