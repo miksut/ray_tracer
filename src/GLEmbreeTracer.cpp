@@ -49,7 +49,7 @@ namespace cgCourse
 		programForMeshPhong = std::make_shared<ShaderProgram>(this->getPathToExecutable() + "../../shader/Mesh_phong");
 		programForMeshBlinn = std::make_shared<ShaderProgram>(this->getPathToExecutable() + "../../shader/Mesh_blinn");
 
-		_parser = std::make_shared<parser>(this, this->getPathToExecutable(), "../../res/scenes/pointlights_spheres_meshes.cgl");
+		_parser = std::make_shared<parser>(this, this->getPathToExecutable(), "../../res/scenes/default.cgl");
 		_scene = _parser->getScene();
 
 		_scene->addLightVariables(programForMeshBlinn);
@@ -107,6 +107,13 @@ namespace cgCourse
 	bool GLEmbreeTracer::end()
 	{
 		return true;
+	}
+
+	void GLEmbreeTracer::loadScene(char* sceneName)
+	{
+		std::string str(sceneName);
+		_parser = std::make_shared<parser>(this, this->getPathToExecutable(), "../../res/scenes/" + str);
+		_scene = _parser->getScene();
 	}
 
 	void GLEmbreeTracer::tracer()

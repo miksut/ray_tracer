@@ -33,6 +33,7 @@ namespace cgCourse
       bool update(double dt) override;
       bool render() override;
       bool end() override;
+	  void loadScene(char* sceneName);
       void tracer();
       void rayCaster();
       void whittedTracer(int recursions);

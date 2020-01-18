@@ -118,11 +118,26 @@ namespace cgCourse
 	  ImGui::Separator();
 
 	  if (typeid(*GLApp::current) == typeid(GLEmbreeTracer)) {
-		  if (ImGui::CollapsingHeader("Raytracing")) {
+		  if (ImGui::CollapsingHeader("Raytracing", ImGuiTreeNodeFlags_DefaultOpen)) {
+
+			  ImGui::AlignTextToFramePadding();
+			  ImGui::Text("Load Scene: "); ImGui::SameLine();
+			  static char sceneName[128] = "default.cgl";
+			  ImGui::InputText("##test", sceneName, 128);
+
+			  if (GLApp::current && ImGui::Button("Load", ImVec2(-1, 30)))
+			  {
+				  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->loadScene(sceneName);
+			  }
+
+			  ImGui::Separator();
+
 			  ImGui::AlignTextToFramePadding();
 			  ImGui::Text("Filename: "); ImGui::SameLine();
 
 			  ImGui::InputText("##label", (char *)getVar("tracedFileName"), 128);
+
+			  ImGui::Separator();
 
 			  ImGui::AlignTextToFramePadding();
 			  ImGui::Text("Format: "); ImGui::SameLine();
