@@ -51,7 +51,7 @@ namespace cgCourse
 
       int shadingAlgorithm = 0; //phong, blinn
 	  char tracedFileName[128] = "tracedImage"; //filename of the image to be saved
-	  ImageFormat imageFormat = ImageFormat::PPM; // image format for image to be saved
+	  ImageFormat imageFormat = ImageFormat::PNG; // image format for image to be saved
   };
 }
 

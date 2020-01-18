@@ -173,11 +173,15 @@ namespace cgCourse {
 			bool shadowed = false;
 
 			if (shadows) {
-				auto shadowRayDir = glm::normalize(posLights[i]->position.toGlm() - r.intersectPos());
-				auto ray = ray_hit(r.intersectPos() + (shadowRayDir * 0.001f), shadowRayDir);
+				auto shadowRayDir = posLights[i]->position.toGlm() - r.intersectPos();
+				auto shadowRayDirN = glm::normalize(shadowRayDir);
 
+				auto ray = ray_hit(r.intersectPos() + (shadowRayDirN * 0.001f), shadowRayDirN);
 				if (intersect(ray)) {
-					if (ray.hit.geomID != r.hit.geomID) {
+
+					auto hitVector = ray.intersectPos() - ray.org();
+
+					if (glm::length(hitVector) < glm::length(shadowRayDir)) {
 						shadowed = true;
 					}
 				}
