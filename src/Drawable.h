@@ -30,6 +30,7 @@ namespace cgCourse
                                GLuint texAttribLoc,
                                GLuint tangentsAttribLoc);
 		bool isLight;
+		glm::vec3 lightColor;
 
     protected:
         GLuint getIndexBufferId() const;

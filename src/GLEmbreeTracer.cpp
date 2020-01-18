@@ -114,6 +114,9 @@ namespace cgCourse
 		std::string str(sceneName);
 		_parser = std::make_shared<parser>(this, this->getPathToExecutable(), "../../res/scenes/" + str);
 		_scene = _parser->getScene();
+
+		_scene->addLightVariables(programForMeshBlinn);
+		_scene->addLightVariables(programForMeshPhong);
 	}
 
 	void GLEmbreeTracer::tracer()

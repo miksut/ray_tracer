@@ -137,8 +137,6 @@ namespace cgCourse
 
 			  ImGui::InputText("##label", (char *)getVar("tracedFileName"), 128);
 
-			  ImGui::Separator();
-
 			  ImGui::AlignTextToFramePadding();
 			  ImGui::Text("Format: "); ImGui::SameLine();
 

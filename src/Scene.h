@@ -146,7 +146,7 @@ namespace cgCourse {
         
         void add_positional_light(const unsigned& id, color c, vector3 pos);
         
-        void add_directional_light(const unsigned & id, color c, vector3 pos);
+        void add_directional_light(const unsigned & id, color c, vector3 dir);
         
         void add_circular_area_light(const unsigned& id, color c, vector3 pos, float r);
         
@@ -187,6 +187,7 @@ namespace cgCourse {
 		std::map<unsigned, std::shared_ptr<Material>> materials; //maps scene id to material
         
 		std::vector<positional_light*> posLights;
+		std::vector<directional_light*> dirLights;
 	};
     
 }

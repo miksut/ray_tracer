@@ -29,10 +29,12 @@ namespace cgCourse {
         
         drawable->createVertexArray(0, 1, 2, 3, 4);
 		drawable->isLight = true;
+		drawable->lightColor = c.toGlm();
         drawables.push_back(drawable);
     }
     
-    void Scene::add_directional_light(const unsigned & id, color c, vector3 pos){
+    void Scene::add_directional_light(const unsigned & id, color c, vector3 dir){
+		dirLights.push_back(new directional_light(id, c, dir));
     }
     
     void Scene::add_circular_area_light(const unsigned& id, color c, vector3 pos, float r){
@@ -122,23 +124,18 @@ namespace cgCourse {
     }
 
 	void Scene::draw(const glm::mat4& _projectionMatrix, const glm::mat4& _viewMatrix, std::shared_ptr<ShaderProgram> _shaderProgram) {
-		int lightIndex = 0;
 		for (int i = 0; i < drawables.size(); i++) {
-			_shaderProgram->setUniformi("lightIndex", lightIndex);
-			
 			drawables[i]->draw(_projectionMatrix, _viewMatrix, _shaderProgram);
-
-			if (drawables[i]->isLight) {
-				lightIndex++;
-			}
 		}
 	}
 
 	void Scene::addLightVariables(const std::shared_ptr<ShaderProgram>& _program) {
+		
+		//point lights
 		int lightCount = 0;
 
 		for (int i = 0; i < posLights.size(); i++) {
-			auto pos_light = static_cast<positional_light*>(posLights[i]);
+			auto pos_light = posLights[i];
 
 			if (pos_light != nullptr) {
 				auto startString = std::string("lights[") + std::to_string(lightCount) + std::string("]");
@@ -149,8 +146,23 @@ namespace cgCourse {
 				lightCount++; 
 			}
 		}
-		std::cout << "lightcount " << lightCount << std::endl;
 		_program->setUniformi("lightCount", lightCount);
+
+		//direction lights
+		int dirLightCount = 0;
+		for (int i = 0; i < dirLights.size(); i++) {
+			auto dir_light = dirLights[i];
+
+			if (dir_light != nullptr) {
+				auto startString = std::string("dirLights[") + std::to_string(dirLightCount) + std::string("]");
+				_program->setUniform3fv(startString + std::string(".direction"), dir_light->direction.toGlm());
+				_program->setUniform3fv(startString + std::string(".ambient"), glm::vec3(0.4));
+				_program->setUniform3fv(startString + std::string(".diffuse"), dir_light->intensity.toGlm());
+				_program->setUniform3fv(startString + std::string(".specular"), dir_light->intensity.toGlm());
+				dirLightCount++;
+			}
+		}
+		_program->setUniformi("dirLightCount", dirLightCount);
 	}
     
     glm::vec3 Scene::shadeLocal(ray_hit &r, bool shadows){
@@ -159,6 +171,35 @@ namespace cgCourse {
         
         auto mat = drawables[embree2DrawableShapeIndex[r.hit.geomID]]->getMaterial();
         
+		//directional lights
+		for (int i = 0; i < dirLights.size(); i++) {
+			glm::vec3 lightDir = -dirLights[i]->direction.toGlm();
+			glm::vec3 lightColor = dirLights[i]->intensity.toGlm();
+
+			//diffuse
+			float diff = glm::max(glm::dot(r.normal(), lightDir), 0.0f);
+			auto diffuse = lightColor * diff * mat->kd;
+
+			//specular
+			auto viewDir = glm::normalize(glm::normalize(r.org() - r.intersectPos()));
+			auto halfWayDir = glm::normalize(lightDir + viewDir);
+			float spec = glm::pow(glm::max(glm::dot(r.normal(), halfWayDir), 0.0f), mat->ns);
+			auto specular = lightColor * spec * mat->ks;
+
+			//shadows
+			bool shadowed = false;
+			if (shadows) {
+				auto shadowRayDir = lightDir;
+				auto shadowRayDirN = glm::normalize(shadowRayDir);
+
+				auto ray = ray_hit(r.intersectPos() + (shadowRayDirN * 0.001f), shadowRayDirN);
+				if (intersect(ray)) {
+					shadowed = true;
+				}
+			}
+			output += (1.0f - shadowed) * (diffuse + specular);
+		}
+
         //positional lights
         for (int i = 0; i < posLights.size(); i++){
             
@@ -170,8 +211,6 @@ namespace cgCourse {
             auto diffuse = lightColor * diff * mat->kd;
             
             //specular
-            //auto reflectDir = glm::reflect(-lightDir, r.normal());
-            
             auto viewDir = glm::normalize(glm::normalize(r.org() - r.intersectPos()));
             auto halfWayDir = glm::normalize(lightDir + viewDir);
             float spec = glm::pow(glm::max(glm::dot(r.normal(), halfWayDir), 0.0f), mat->ns);
@@ -179,7 +218,6 @@ namespace cgCourse {
             
 			//shadows
 			bool shadowed = false;
-
 			if (shadows) {
 				auto shadowRayDir = posLights[i]->position.toGlm() - r.intersectPos();
 				auto shadowRayDirN = glm::normalize(shadowRayDir);
