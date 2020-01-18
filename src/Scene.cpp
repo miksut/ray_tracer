@@ -25,9 +25,10 @@ namespace cgCourse {
     void Scene::add_positional_light(const unsigned& id, color c, vector3 pos){
         posLights.push_back(new positional_light(id, c, pos));
         
-        auto drawable = new Sphere(glm::vec4(pos.toGlm(), 0.05));
+        auto drawable = new Sphere(glm::vec4(pos.toGlm(), 0.025));
         
         drawable->createVertexArray(0, 1, 2, 3, 4);
+		drawable->isLight = true;
         drawables.push_back(drawable);
     }
     
@@ -121,8 +122,15 @@ namespace cgCourse {
     }
 
 	void Scene::draw(const glm::mat4& _projectionMatrix, const glm::mat4& _viewMatrix, std::shared_ptr<ShaderProgram> _shaderProgram) {
+		int lightIndex = 0;
 		for (int i = 0; i < drawables.size(); i++) {
+			_shaderProgram->setUniformi("lightIndex", lightIndex);
+			
 			drawables[i]->draw(_projectionMatrix, _viewMatrix, _shaderProgram);
+
+			if (drawables[i]->isLight) {
+				lightIndex++;
+			}
 		}
 	}
 

@@ -1,6 +1,5 @@
 #version 330 core
 
-
 in vec3 vertexColor;
 in vec3 vertexNormal;
 in vec3 worldPos;
@@ -17,19 +16,13 @@ uniform struct Material{
         bool hasObjectColor;
         vec3 color;
         float illumination;
-    }mat;
+}mat;
 
-uniform sampler2D diffuseTexture;
-uniform sampler2D normalTexture;
-uniform sampler2D specTexture;
-
-uniform sampler2D cubetex;
-uniform sampler2D cubetexSpec;
-
-uniform sampler2D cubeNormalTex;
 in mat3 tbnMatrix;
 
 uniform vec3 camPos;
+uniform bool isLight;
+uniform int lightIndex;
 
 layout(location = 0) out vec4 color;
 
@@ -45,43 +38,29 @@ uniform Light lights[100];
 
 void main()
 {
-	vec3 specValue = mat.ks;
-	if (mat.hasSpecTexture)
-		specValue = texture(specTexture, texCoord.xy).rgb;
-	vec3 normal;
-	if (mat.hasNormalTexture){
-	vec3 normalTangetSpace = texture(normalTexture, texCoord.xy).rgb;
-	normalTangetSpace = normalize(normalTangetSpace * 2.0 - 1.0);
-    normal = normalize(tbnMatrix * normalTangetSpace);
-    color = vec4(normal,1);
-	}else{
-		normal = vertexNormal;
+	color = vec4(0,0,0,1);
+
+	//point lights
+	for (int i = 0; i < lightCount; i++){
+            
+		vec3 lightDir = normalize(lights[i].position - worldPos);
+            
+		//diffuse
+		float diff = max(dot(vertexNormal, lightDir), 0.0f);
+		vec3 diffuse = lights[i].diffuse * diff * mat.kd;
+            
+            
+		//specular
+		vec3 reflectDir = reflect(-lightDir, vertexNormal);
+		vec3 viewDir = normalize(camPos - worldPos);
+		float spec = pow(max(dot(viewDir, reflectDir), 0.0), mat.ns);
+		vec3 specular = lights[i].specular * spec * mat.ks;
+
+		color += vec4(diffuse + specular, 1);
+    }
+
+	if (isLight){
+		color = vec4(lights[lightIndex].diffuse, 1);
 	}
 
-	vec3 lightDir = normalize(lights[0].position - worldPos);
-	float diffDot = max(dot(normal, lightDir), 0.0);
-	vec3 diffuseColor = diffDot * lights[0].diffuse;
-	float ambientFactor = 0.1f;
-	vec3 ambientColor = (lights[0].ambient.xyz * mat.ka);
-	vec3 colorMap = vec3 (0.7,0.5,0.5);
-	if (mat.ifTextureColor){
-		colorMap = vec3(texture(diffuseTexture,texCoord));
-	}else{
-		colorMap = vertexColor;
-	}
-
-	float spec;
-	if (diffDot>0){
-	vec3 viewDir = vec3(normalize(camPos - worldPos));
-	vec3 reflectDir = reflect(-lightDir, normal);
-	float specDot = max(dot(viewDir, reflectDir), 0.0);
-	spec = pow(specDot, 32);
-	}else{
-		spec = 0;
-	}
-	float specStrength = 1.0;
-	vec3 specularColor = specStrength * spec * lights[0].specular;
-
-
-	color = vec4((ambientColor + diffuseColor) * colorMap.rgb + (specularColor * specValue) + mat.illumination * mat.color, 1.0);
 }

@@ -29,6 +29,8 @@ namespace cgCourse
                                GLuint normAttribLoc,
                                GLuint texAttribLoc,
                                GLuint tangentsAttribLoc);
+		bool isLight;
+
     protected:
         GLuint getIndexBufferId() const;
         GLuint getVertexArrayId() const;
