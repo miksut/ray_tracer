@@ -32,7 +32,7 @@ namespace cgCourse {
                 }else{
                     frame[3 * ((y - startY) * width + x)] = 0.0;
                     frame[3 * ((y - startY) * width + x) + 1] = 0.0;
-                    frame[3 * ((y - startY) * width + x) + 2] = 1.0;
+                    frame[3 * ((y - startY) * width + x) + 2] = 0.0;
                 }
             }
         }

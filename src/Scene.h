@@ -155,7 +155,7 @@ namespace cgCourse {
         
         void add_sphere_object(const unsigned& id, unsigned mat_id, vector3 pos, float r);
         
-        void add_mesh_object(const unsigned& id, unsigned mat_id, std::string f, std::string path);
+        void add_mesh_object(const unsigned& id, unsigned mat_id, std::string f, std::string path, vector3 pos, float scale);
 
 		void add_room_object(const unsigned& id, unsigned mat_id, float scale, vector3 pos, vector3 col, std::vector<float> element);
         

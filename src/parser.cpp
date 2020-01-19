@@ -129,7 +129,9 @@ namespace cgCourse {
         if(token == "M")
         {
             ss >> filename;
-            scene->add_mesh_object(id, id_mat, filename, this->pathToExe + "../../res/PLY/");
+			read_line();
+			ss >> x >> y >> z >> scale;
+            scene->add_mesh_object(id, id_mat, filename, this->pathToExe + "../../res/PLY/", vector3(x,y,z), scale);
         }
 
 		if (token == "R")

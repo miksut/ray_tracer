@@ -104,13 +104,13 @@ namespace cgCourse {
 		drawables.push_back(drawable);
     }
     
-    void Scene::add_mesh_object(const unsigned& id, unsigned mat_id, std::string f, std::string path){
+    void Scene::add_mesh_object(const unsigned& id, unsigned mat_id, std::string f, std::string path, vector3 pos, float scale){
        
 		auto drawable = new Mesh();
 		drawable->createVertexArray(0, 1, 2, 3, 4);
 		drawable->load(path, f, true, false, true);
-		drawable->setPosition(glm::vec3(6.0, -11.0, -3.0));
-		drawable->setScaling(glm::vec3(30.0));
+		drawable->setPosition(pos.toGlm());
+		drawable->setScaling(glm::vec3(scale));
 		drawable->setMaterial(materials[mat_id]);
 		
 		embree2DrawableShapeIndex[add_mesh(*drawable->elements[0], drawable->getModelMatrix())] = drawables.size();

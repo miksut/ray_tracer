@@ -181,6 +181,7 @@ namespace cgCourse
 		auto end = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
 		std::cout << "Raytracing took " << duration.count() << " seconds..." << std::endl;
+		std::cout << '\a';
 	}
 }
 
