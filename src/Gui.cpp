@@ -144,6 +144,12 @@ namespace cgCourse
 			  ImGui::RadioButton("PNG", (int *)getVar("imageFormat"), 1); ImGui::SameLine();
 
 			  ImGui::Separator();
+			  ImGui::Text("Antialiasing: "); ImGui::SameLine();
+
+			  ImGui::RadioButton("No", (int *)getVar("Antialiasing"), 0); ImGui::SameLine();
+			  ImGui::RadioButton("Yes", (int *)getVar("Antialiasing"), 1); ImGui::SameLine();
+			 
+			  ImGui::Separator();
 
 			  ImGui::Text("Run a raytracer: ");
 			  if (GLApp::current && ImGui::Button("Simple", ImVec2(-1, 30)))

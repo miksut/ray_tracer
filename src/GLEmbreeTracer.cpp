@@ -35,6 +35,7 @@ namespace cgCourse
 		connectVar("shadingAlgorithm", &shadingAlgorithm);
 		connectVar("tracedFileName", &tracedFileName);
 		connectVar("imageFormat", &imageFormat);
+		connectVar("Antialiasing", &antiAliasing);
 
 		// Framebuffer size and window size may be different in high-DPI displays
 		// setup camera with standard view (static for our case)
@@ -121,9 +122,9 @@ namespace cgCourse
 
 	void GLEmbreeTracer::tracer()
 	{
-		auto tracer = std::make_shared<SimpleRayTracer>(getWindowSize().x, getWindowSize().y, _scene);
+		auto tracer = std::make_shared<SimpleRayTracer>(getWindowSize().x, getWindowSize().y, _scene, antiAliasing);
 
-		auto futureImage = tracer->start(cam, 1);
+		auto futureImage = tracer->start(cam, 16); // 2nd parameter as # of samples per pixel
 		futureImage.wait();
 		auto image = futureImage.get();
 
@@ -139,9 +140,9 @@ namespace cgCourse
 
 	void GLEmbreeTracer::rayCaster()
 	{
-		auto tracer = std::make_shared<RayCaster>(getWindowSize().x, getWindowSize().y, _scene);
+		auto tracer = std::make_shared<RayCaster>(getWindowSize().x, getWindowSize().y, _scene, antiAliasing);
 
-		auto futureImage = tracer->start(cam, 1);
+		auto futureImage = tracer->start(cam, 16);
 		futureImage.wait();
 		auto image = futureImage.get();
 
@@ -157,9 +158,9 @@ namespace cgCourse
 
 	void GLEmbreeTracer::whittedTracer(int recursions)
 	{
-		auto tracer = std::make_shared<WhittedTracer>(getWindowSize().x, getWindowSize().y, _scene, recursions);
+		auto tracer = std::make_shared<WhittedTracer>(getWindowSize().x, getWindowSize().y, _scene, recursions, antiAliasing);
 
-		auto futureImage = tracer->start(cam, 1);
+		auto futureImage = tracer->start(cam, 16);
 		futureImage.wait();
 		auto image = futureImage.get();
 
