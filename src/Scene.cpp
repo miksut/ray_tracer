@@ -3,6 +3,7 @@
 #include "GLEmbreeTracer.h"
 #include <cmath>
 #include "DrawablePointLight.h"
+#include "DrawableRectangularAreaLight.h"
 
 namespace cgCourse {
     
@@ -39,6 +40,14 @@ namespace cgCourse {
     }
     
     void Scene::add_rectangular_area_light(const unsigned& id, color c, vector3 pos, vector3 h, vector3 v){
+		
+		
+		auto drawable = new DrawableRectangularAreaLight(pos.toGlm(), c.toGlm(), h.toGlm(), v.toGlm());
+		
+		embree2DrawableShapeIndex[add_mesh(*drawable, drawable->getModelMatrix())] = drawables.size();
+
+		drawable->createVertexArray(0, 1, 2, 3, 4);
+		drawables.push_back(drawable);
     }
     
     void Scene::add_diffuse_material(const unsigned& id, color d){
@@ -128,9 +137,13 @@ namespace cgCourse {
 			if (light != nullptr) {
 				_shaderProgram->setUniform3fv("lightColor", light->getLightColor());
 				_shaderProgram->setUniformi("isLight", true);
+
+				//dont cull area lights!
+				glDisable(GL_CULL_FACE);
 			}
 			drawables[i]->draw(_projectionMatrix, _viewMatrix, _shaderProgram);
 			
+			glEnable(GL_CULL_FACE);
 			_shaderProgram->setUniformi("isLight", false);
 		}
 	}
@@ -172,7 +185,13 @@ namespace cgCourse {
         
         glm::vec3 output = glm::vec3(0,0,0);
         
-        auto mat = drawables[embree2DrawableShapeIndex[r.hit.geomID]]->getMaterial();
+		auto drawable = drawables[embree2DrawableShapeIndex[r.hit.geomID]];
+        auto mat = drawable->getMaterial();
+
+		auto light = dynamic_cast<Light*>(drawable);
+		if (light != nullptr) {
+			return light->getLightColor();
+		}
         
 		//directional lights
 		for (int i = 0; i < dirLights.size(); i++) {
@@ -210,7 +229,7 @@ namespace cgCourse {
 			if (light == nullptr)
 				continue;
 
-			auto samplePositions = light->getSamplePositions(20);
+			auto samplePositions = light->getSamplePositions(SampleAmount::Low);
 
 			for (int j = 0; j < samplePositions.size(); j++) {
 				glm::vec3 lightDir = glm::normalize(samplePositions[j] - r.intersectPos());
@@ -234,7 +253,6 @@ namespace cgCourse {
 
 					auto ray = ray_hit(r.intersectPos() + (shadowRayDirN * 0.001f), shadowRayDirN);
 					if (intersect(ray)) {
-
 						auto hitVector = ray.intersectPos() - ray.org();
 
 						if (glm::length(hitVector) < glm::length(shadowRayDir)) {
@@ -258,8 +276,15 @@ namespace cgCourse {
 			return output;
 		}
 
-		auto mat = drawables[embree2DrawableShapeIndex[r.hit.geomID]]->getMaterial();
-		
+		auto drawable = drawables[embree2DrawableShapeIndex[r.hit.geomID]];
+		auto mat = drawable->getMaterial();
+
+		auto light = dynamic_cast<Light*>(drawable);
+		if (light != nullptr) {
+			//dont reflect if we hit a light
+			return output;
+		}
+
 		auto reflected = glm::normalize(glm::reflect(r.dir(), r.normal()));
 
 		auto reflected_ray = ray_hit(r.intersectPos() + (reflected * 0.001f), reflected);

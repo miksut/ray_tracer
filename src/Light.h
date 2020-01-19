@@ -16,6 +16,8 @@ namespace cgCourse {
 		glm::vec3 lightColor;
 	};
 
+	enum SampleAmount { Low, Medium, High };
+
 	class SamplableLight : public Light {
 	public:
 		SamplableLight(glm::vec3 position, glm::vec3 lightColor) : Light(lightColor), position(position) {};
@@ -24,10 +26,11 @@ namespace cgCourse {
 			return position;
 		}
 
-		virtual std::vector<glm::vec3> getSamplePositions(unsigned amount) = 0;
+		virtual std::vector<glm::vec3> getSamplePositions(SampleAmount amount) = 0;
 
 	protected:
 		glm::vec3 position;
 	};
+
 }
 

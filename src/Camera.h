@@ -60,9 +60,10 @@ namespace cgCourse
         const float cameraMouseIntensity = 70;
         
         int type = 0;
-        float fieldOfView = 3.1415/4.0;
-        float nearPlane = 0.1;
-        float farPlane = 50.0;
+        //float fieldOfView = 3.1415/4.0;
+		float fieldOfView = 1;
+		float nearPlane = 0.1;
+        float farPlane = 100.0;
 	};
 }
 

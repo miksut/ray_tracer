@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 
     // create the app:
     // - use GLExample for task 1 (multi-resolution point cloud viewer)
-    cgCourse::GLEmbreeTracer app(glm::uvec2(1600, 900), std::string("OpenGL Example"), exePath);
+    cgCourse::GLEmbreeTracer app(glm::uvec2(1000, 1000), std::string("Raytracing Example"), exePath);
     // - use GLEmbreeTracer for task 2 (ray tracing)
     //cgCourse::GLExample app(glm::uvec2(1600, 900), std::string("OpenGL Example"), exePath);
 

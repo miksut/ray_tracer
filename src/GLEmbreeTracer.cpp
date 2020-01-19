@@ -39,7 +39,7 @@ namespace cgCourse
 		// Framebuffer size and window size may be different in high-DPI displays
 		// setup camera with standard view (static for our case)
 		this->cam.create(this->getFramebufferSize(), this->getWindowSize(),
-			glm::vec3(0, 0, 32),
+			glm::vec3(0, 0, 26),
 			glm::vec3(0, -0.5, 0),
 			glm::vec3(0, 1, 0));
 		InputManager::registerInputAcceptor(&cam);
