@@ -11,7 +11,7 @@ namespace cgCourse {
     class RayTracer {
     public:
         RayTracer(int width, int height, std::shared_ptr<Scene> scene);
-        virtual std::future<float*> start(const Camera & cam, const unsigned & samples) = 0;
+        virtual std::future<float*> start(const Camera & cam, const unsigned & samples, int startY, int endY) = 0;
         
     protected:
         int width, height;

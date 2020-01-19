@@ -18,6 +18,9 @@
 #include "RayCaster.h"
 #include "WhittedTracer.h"
 
+#include <thread>
+#include <chrono>
+
 namespace cgCourse
 {
 	GLEmbreeTracer::GLEmbreeTracer(glm::uvec2 _windowSize, std::string _title, std::string _exepath)
@@ -35,6 +38,7 @@ namespace cgCourse
 		connectVar("shadingAlgorithm", &shadingAlgorithm);
 		connectVar("tracedFileName", &tracedFileName);
 		connectVar("imageFormat", &imageFormat);
+		connectVar("threads", &threads);
 
 		// Framebuffer size and window size may be different in high-DPI displays
 		// setup camera with standard view (static for our case)
@@ -121,47 +125,49 @@ namespace cgCourse
 
 	void GLEmbreeTracer::tracer()
 	{
-		auto tracer = std::make_shared<SimpleRayTracer>(getWindowSize().x, getWindowSize().y, _scene);
-
-		auto futureImage = tracer->start(cam, 1);
-		futureImage.wait();
-		auto image = futureImage.get();
-
-		if (this->imageFormat == 0) {
-			ImageSaver::saveImageAsPPM(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);
-		}
-		else {
-			ImageSaver::saveImageAsPNG(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);
-		};
-
-		delete[] image;
+		auto tracer = std::unique_ptr<RayTracer>(new SimpleRayTracer(getWindowSize().x, getWindowSize().y, _scene));
+		runTracer(tracer);
 	}
 
 	void GLEmbreeTracer::rayCaster()
 	{
-		auto tracer = std::make_shared<RayCaster>(getWindowSize().x, getWindowSize().y, _scene);
-
-		auto futureImage = tracer->start(cam, 1);
-		futureImage.wait();
-		auto image = futureImage.get();
-
-		if (this->imageFormat == 0) {
-			ImageSaver::saveImageAsPPM(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);
-		}
-		else {
-			ImageSaver::saveImageAsPNG(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);
-		};
-
-		delete[] image;
+		auto tracer = std::unique_ptr<RayTracer>(new RayCaster(getWindowSize().x, getWindowSize().y, _scene));
+		runTracer(tracer);
 	}
 
 	void GLEmbreeTracer::whittedTracer(int recursions)
 	{
-		auto tracer = std::make_shared<WhittedTracer>(getWindowSize().x, getWindowSize().y, _scene, recursions);
+		auto tracer = std::unique_ptr<RayTracer>(new WhittedTracer(getWindowSize().x, getWindowSize().y, _scene, recursions));
+		runTracer(tracer);
+	}
 
-		auto futureImage = tracer->start(cam, 1);
-		futureImage.wait();
-		auto image = futureImage.get();
+	void GLEmbreeTracer::runTracer(std::unique_ptr<RayTracer>& tracer) {
+		auto start = std::chrono::high_resolution_clock::now();
+
+		std::cout << "Starting tracing with " << threads << " threads..." << std::endl;
+		int x = getWindowSize().x;
+		float widthPerThread = (x / (float)threads);
+
+		std::vector<std::future<float*>> futures;
+		std::vector<int> imageSizes;
+		for (int i = 0; i < threads; i++) {
+			int start = (int)(i * widthPerThread);
+			int end = (int)(i * widthPerThread + widthPerThread);
+			imageSizes.push_back((end - start) * getWindowSize().x * 3);
+			futures.push_back(tracer->start(cam, 1, start, end));
+		}
+
+		std::vector<float*> result;
+		for (auto& e : futures) {
+			result.push_back(e.get());
+		}
+
+		float* image = new float[getWindowSize().x * getWindowSize().y * 3];
+		int loc = 0;
+		for (int i = 0; i < result.size(); i++) {
+			memcpy(image + loc, result[i], imageSizes[i] * sizeof(float));
+			loc += imageSizes[i];
+		}
 
 		if (this->imageFormat == 0) {
 			ImageSaver::saveImageAsPPM(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);
@@ -171,6 +177,10 @@ namespace cgCourse
 		};
 
 		delete[] image;
+
+		auto end = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+		std::cout << "Raytracing took " << duration.count() << " seconds..." << std::endl;
 	}
 }
 

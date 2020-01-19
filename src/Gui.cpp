@@ -117,20 +117,20 @@ namespace cgCourse
 
 	  ImGui::Separator();
 
+	  ImGui::AlignTextToFramePadding();
+	  ImGui::Text("Load Scene: "); ImGui::SameLine();
+	  static char sceneName[128] = "default.cgl";
+	  ImGui::InputText("##test", sceneName, 128);
+
+	  if (GLApp::current && ImGui::Button("Load", ImVec2(-1, 30)))
+	  {
+		  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->loadScene(sceneName);
+	  }
+
+	  ImGui::Separator();
+
 	  if (typeid(*GLApp::current) == typeid(GLEmbreeTracer)) {
 		  if (ImGui::CollapsingHeader("Raytracing", ImGuiTreeNodeFlags_DefaultOpen)) {
-
-			  ImGui::AlignTextToFramePadding();
-			  ImGui::Text("Load Scene: "); ImGui::SameLine();
-			  static char sceneName[128] = "default.cgl";
-			  ImGui::InputText("##test", sceneName, 128);
-
-			  if (GLApp::current && ImGui::Button("Load", ImVec2(-1, 30)))
-			  {
-				  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->loadScene(sceneName);
-			  }
-
-			  ImGui::Separator();
 
 			  ImGui::AlignTextToFramePadding();
 			  ImGui::Text("Filename: "); ImGui::SameLine();
@@ -141,9 +141,15 @@ namespace cgCourse
 			  ImGui::Text("Format: "); ImGui::SameLine();
 
 			  ImGui::RadioButton("PPM", (int *)getVar("imageFormat"), 0); ImGui::SameLine();
-			  ImGui::RadioButton("PNG", (int *)getVar("imageFormat"), 1); ImGui::SameLine();
+			  ImGui::RadioButton("PNG", (int *)getVar("imageFormat"), 1);
+
+			  ImGui::AlignTextToFramePadding();
+			  ImGui::SliderInt("Threads", (int*)getVar("threads"), 1, 16); 
 
 			  ImGui::Separator();
+
+			  ImGui::Dummy(ImVec2(0, 30.0));
+
 			  ImGui::Separator();
 
 			  ImGui::Text("Run a raytracer: ");
@@ -163,7 +169,7 @@ namespace cgCourse
 			  ImGui::Separator();
 			  ImGui::Spacing();
 			  static int recursions = 3;
-			  ImGui::InputInt("Recursions", &recursions);
+			  ImGui::SliderInt("Recursions", &recursions, 0, 10);
 
 			  ImGui::AlignTextToFramePadding();
 			  ImGui::Text("Light Samples: ");
