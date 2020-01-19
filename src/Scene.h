@@ -104,12 +104,6 @@ namespace cgCourse {
     };
 
     // lights
-    struct positional_light : light
-    {
-        positional_light(const unsigned int id, color i, vector3 p) : light(id), intensity(i), position(p) {};
-        const color intensity;
-        const vector3 position;
-    };
 
     struct directional_light : light
     {
@@ -185,7 +179,6 @@ namespace cgCourse {
 		std::vector<DrawableShape*> drawables;
 		std::map<unsigned, std::shared_ptr<Material>> materials; //maps scene id to material
         
-		std::vector<positional_light*> posLights;
 		std::vector<directional_light*> dirLights;
 	};
     

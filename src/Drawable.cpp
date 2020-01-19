@@ -238,8 +238,6 @@ namespace cgCourse
             glUniform1f(_shaderProgram->getUniformLocation("mat.illumination"), 0);
         }
 
-		glUniform1i(_shaderProgram->getUniformLocation("isLight"), isLight);
-		glUniform3fv(_shaderProgram->getUniformLocation("lightColor"), 1, &lightColor[0]);
 
         // bind the Vertex Array Object of the cube and draw the triangles
         glBindVertexArray(this->getVertexArrayId());

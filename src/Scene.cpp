@@ -2,6 +2,7 @@
 
 #include "GLEmbreeTracer.h"
 #include <cmath>
+#include "DrawablePointLight.h"
 
 namespace cgCourse {
     
@@ -23,13 +24,10 @@ namespace cgCourse {
     }
 
     void Scene::add_positional_light(const unsigned& id, color c, vector3 pos){
-        posLights.push_back(new positional_light(id, c, pos));
         
-        auto drawable = new Sphere(glm::vec4(pos.toGlm(), 0.025));
-        
+        auto drawable = new DrawablePointLight(pos.toGlm(), c.toGlm());
+
         drawable->createVertexArray(0, 1, 2, 3, 4);
-		drawable->isLight = true;
-		drawable->lightColor = c.toGlm();
         drawables.push_back(drawable);
     }
     
@@ -125,7 +123,15 @@ namespace cgCourse {
 
 	void Scene::draw(const glm::mat4& _projectionMatrix, const glm::mat4& _viewMatrix, std::shared_ptr<ShaderProgram> _shaderProgram) {
 		for (int i = 0; i < drawables.size(); i++) {
+			auto light = dynamic_cast<Light*>(drawables[i]);
+
+			if (light != nullptr) {
+				_shaderProgram->setUniform3fv("lightColor", light->getLightColor());
+				_shaderProgram->setUniformi("isLight", true);
+			}
 			drawables[i]->draw(_projectionMatrix, _viewMatrix, _shaderProgram);
+			
+			_shaderProgram->setUniformi("isLight", false);
 		}
 	}
 
@@ -134,15 +140,15 @@ namespace cgCourse {
 		//point lights
 		int lightCount = 0;
 
-		for (int i = 0; i < posLights.size(); i++) {
-			auto pos_light = posLights[i];
+		for (int i = 0; i < drawables.size(); i++) {
+			auto pos_light = dynamic_cast<SamplableLight*>(drawables[i]);
 
 			if (pos_light != nullptr) {
 				auto startString = std::string("lights[") + std::to_string(lightCount) + std::string("]");
-				_program->setUniform3fv(startString + std::string(".position"), pos_light->position.toGlm());
-				_program->setUniform3fv(startString + std::string(".ambient"), glm::vec3(0.4));
-				_program->setUniform3fv(startString + std::string(".diffuse"), pos_light->intensity.toGlm());
-				_program->setUniform3fv(startString + std::string(".specular"), pos_light->intensity.toGlm());
+				_program->setUniform3fv(startString + std::string(".position"), pos_light->getLightPosition());
+				_program->setUniform3fv(startString + std::string(".ambient"), glm::vec3(0.2));
+				_program->setUniform3fv(startString + std::string(".diffuse"), pos_light->getLightColor());
+				_program->setUniform3fv(startString + std::string(".specular"), pos_light->getLightColor());
 				lightCount++; 
 			}
 		}
@@ -152,15 +158,12 @@ namespace cgCourse {
 		int dirLightCount = 0;
 		for (int i = 0; i < dirLights.size(); i++) {
 			auto dir_light = dirLights[i];
-
-			if (dir_light != nullptr) {
-				auto startString = std::string("dirLights[") + std::to_string(dirLightCount) + std::string("]");
-				_program->setUniform3fv(startString + std::string(".direction"), dir_light->direction.toGlm());
-				_program->setUniform3fv(startString + std::string(".ambient"), glm::vec3(0.4));
-				_program->setUniform3fv(startString + std::string(".diffuse"), dir_light->intensity.toGlm());
-				_program->setUniform3fv(startString + std::string(".specular"), dir_light->intensity.toGlm());
-				dirLightCount++;
-			}
+			auto startString = std::string("dirLights[") + std::to_string(dirLightCount) + std::string("]");
+			_program->setUniform3fv(startString + std::string(".direction"), dir_light->direction.toGlm());
+			_program->setUniform3fv(startString + std::string(".ambient"), glm::vec3(0.2));
+			_program->setUniform3fv(startString + std::string(".diffuse"), dir_light->intensity.toGlm());
+			_program->setUniform3fv(startString + std::string(".specular"), dir_light->intensity.toGlm());
+			dirLightCount++;
 		}
 		_program->setUniformi("dirLightCount", dirLightCount);
 	}
@@ -200,39 +203,47 @@ namespace cgCourse {
 			output += (1.0f - shadowed) * (diffuse + specular);
 		}
 
-        //positional lights
-        for (int i = 0; i < posLights.size(); i++){
+        //samplable lights
+        for (int i = 0; i < drawables.size(); i++){
             
-            glm::vec3 lightDir = glm::normalize(posLights[i]->position.toGlm() - r.intersectPos());
-            glm::vec3 lightColor = posLights[i]->intensity.toGlm();
-            
-            //diffuse
-            float diff = glm::max(glm::dot(r.normal(), lightDir), 0.0f);
-            auto diffuse = lightColor * diff * mat->kd;
-            
-            //specular
-            auto viewDir = glm::normalize(glm::normalize(r.org() - r.intersectPos()));
-            auto halfWayDir = glm::normalize(lightDir + viewDir);
-            float spec = glm::pow(glm::max(glm::dot(r.normal(), halfWayDir), 0.0f), mat->ns);
-            auto specular = lightColor * spec * mat->ks;
-            
-			//shadows
-			bool shadowed = false;
-			if (shadows) {
-				auto shadowRayDir = posLights[i]->position.toGlm() - r.intersectPos();
-				auto shadowRayDirN = glm::normalize(shadowRayDir);
+			auto light = dynamic_cast<SamplableLight*>(drawables[i]);
+			if (light == nullptr)
+				continue;
 
-				auto ray = ray_hit(r.intersectPos() + (shadowRayDirN * 0.001f), shadowRayDirN);
-				if (intersect(ray)) {
+			auto samplePositions = light->getSamplePositions(20);
 
-					auto hitVector = ray.intersectPos() - ray.org();
+			for (int j = 0; j < samplePositions.size(); j++) {
+				glm::vec3 lightDir = glm::normalize(samplePositions[j] - r.intersectPos());
+				glm::vec3 lightColor = light->getLightColor();
 
-					if (glm::length(hitVector) < glm::length(shadowRayDir)) {
-						shadowed = true;
+				//diffuse
+				float diff = glm::max(glm::dot(r.normal(), lightDir), 0.0f);
+				auto diffuse = lightColor * diff * mat->kd;
+
+				//specular
+				auto viewDir = glm::normalize(glm::normalize(r.org() - r.intersectPos()));
+				auto halfWayDir = glm::normalize(lightDir + viewDir);
+				float spec = glm::pow(glm::max(glm::dot(r.normal(), halfWayDir), 0.0f), mat->ns);
+				auto specular = lightColor * spec * mat->ks;
+
+				//shadows
+				bool shadowed = false;
+				if (shadows) {
+					auto shadowRayDir = lightDir;
+					auto shadowRayDirN = glm::normalize(shadowRayDir);
+
+					auto ray = ray_hit(r.intersectPos() + (shadowRayDirN * 0.001f), shadowRayDirN);
+					if (intersect(ray)) {
+
+						auto hitVector = ray.intersectPos() - ray.org();
+
+						if (glm::length(hitVector) < glm::length(shadowRayDir)) {
+							shadowed = true;
+						}
 					}
 				}
+				output += ((1.0f - shadowed) * (diffuse + specular)) / (float) samplePositions.size();
 			}
-			output += (1.0f - shadowed) * (diffuse + specular);
         }
 
         return output;
