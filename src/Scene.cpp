@@ -4,6 +4,9 @@
 #include <cmath>
 #include "DrawablePointLight.h"
 #include "DrawableRectangularAreaLight.h"
+#include "DrawableCircularAreaLight.h"
+
+#include "Gui.h"
 
 namespace cgCourse {
     
@@ -16,6 +19,8 @@ namespace cgCourse {
         device = rtcNewDevice(NULL);
         rtcSetDeviceErrorFunction(device, embree_error, NULL);
         
+		connectVar("sampleAmount", &sampleAmount);
+
         scene = rtcNewScene(device);
     }
     
@@ -37,11 +42,15 @@ namespace cgCourse {
     }
     
     void Scene::add_circular_area_light(const unsigned& id, color c, vector3 pos, float r){
+		auto drawable = new DrawableCircularAreaLight(pos.toGlm(), c.toGlm(), r);
+
+		embree2DrawableShapeIndex[add_mesh(*drawable, drawable->getModelMatrix())] = drawables.size();
+
+		drawable->createVertexArray(0, 1, 2, 3, 4);
+		drawables.push_back(drawable);
     }
     
     void Scene::add_rectangular_area_light(const unsigned& id, color c, vector3 pos, vector3 h, vector3 v){
-		
-		
 		auto drawable = new DrawableRectangularAreaLight(pos.toGlm(), c.toGlm(), h.toGlm(), v.toGlm());
 		
 		embree2DrawableShapeIndex[add_mesh(*drawable, drawable->getModelMatrix())] = drawables.size();
@@ -229,7 +238,7 @@ namespace cgCourse {
 			if (light == nullptr)
 				continue;
 
-			auto samplePositions = light->getSamplePositions(SampleAmount::Low);
+			auto samplePositions = light->getSamplePositions(sampleAmount);
 
 			for (int j = 0; j < samplePositions.size(); j++) {
 				glm::vec3 lightDir = glm::normalize(samplePositions[j] - r.intersectPos());

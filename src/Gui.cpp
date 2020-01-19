@@ -144,26 +144,43 @@ namespace cgCourse
 			  ImGui::RadioButton("PNG", (int *)getVar("imageFormat"), 1); ImGui::SameLine();
 
 			  ImGui::Separator();
+			  ImGui::Separator();
 
 			  ImGui::Text("Run a raytracer: ");
+			  ImGui::Spacing();
 			  if (GLApp::current && ImGui::Button("Simple", ImVec2(-1, 30)))
 			  {
 				  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->tracer();
 			  }
+			  ImGui::Spacing();
 			  ImGui::Separator();
+			  ImGui::Spacing();
               if (GLApp::current && ImGui::Button("RayCaster", ImVec2(-1, 30)))
               {
                   dynamic_cast<GLEmbreeTracer*>(GLApp::current)->rayCaster();
               }
+			  ImGui::Spacing();
 			  ImGui::Separator();
+			  ImGui::Spacing();
 			  static int recursions = 3;
 			  ImGui::InputInt("Recursions", &recursions);
+
+			  ImGui::AlignTextToFramePadding();
+			  ImGui::Text("Light Samples: ");
+
+			  ImGui::RadioButton("Low", (int*)getVar("sampleAmount"), 0); ImGui::SameLine();
+			  ImGui::RadioButton("Medium", (int*)getVar("sampleAmount"), 1); ImGui::SameLine();
+			  ImGui::RadioButton("High", (int*)getVar("sampleAmount"), 2);
+			  ImGui::Spacing();
+
               if (GLApp::current && ImGui::Button("Whitted", ImVec2(-1, 30)))
               {
                   dynamic_cast<GLEmbreeTracer*>(GLApp::current)->whittedTracer(recursions);
               }
+			  ImGui::Spacing();
 			  ImGui::Separator();
-              
+			  ImGui::Spacing();
+
 		  }
 	  }
 

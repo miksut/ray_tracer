@@ -13,6 +13,7 @@
 #include "Camera.h"
 
 #include "Room.h"
+#include "Light.h"
 
 namespace cgCourse {
     
@@ -180,6 +181,7 @@ namespace cgCourse {
 		std::map<unsigned, std::shared_ptr<Material>> materials; //maps scene id to material
         
 		std::vector<directional_light*> dirLights;
+		SampleAmount sampleAmount = SampleAmount::Low;
 	};
     
 }
