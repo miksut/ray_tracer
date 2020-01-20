@@ -138,8 +138,8 @@ namespace cgCourse
 		auto start = std::chrono::high_resolution_clock::now();
 
 		std::cout << "Starting tracing with " << threads << " threads..." << std::endl;
-		int x = getWindowSize().x;
-		float widthPerThread = (x / (float)threads);
+		int y = getWindowSize().y;
+		float widthPerThread = (y / (float)threads);
 
 		std::vector<std::future<float*>> futures;
 		std::vector<int> imageSizes;
