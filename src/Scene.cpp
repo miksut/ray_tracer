@@ -241,6 +241,7 @@ namespace cgCourse {
                 
                 // start a little bit in correct direction to not create self intersections
 				auto ray = ray_hit(r.intersectPos() + (shadowRayDirN * 0.001f), shadowRayDirN);
+                
 				if (intersect(ray)) {
 					shadowed = true;
 				}
@@ -280,7 +281,7 @@ namespace cgCourse {
 				//shadows
 				bool shadowed = false;
 				if (shadows) {
-					auto shadowRayDir = lightDir;
+					auto shadowRayDir = samplePositions[j] - r.intersectPos();
 					auto shadowRayDirN = glm::normalize(shadowRayDir);
                     
                     // start a little bit in correct direction to not create self intersections
@@ -290,7 +291,10 @@ namespace cgCourse {
                         
                         // if the hit object is farther away than the light => not shadowed
 						if (glm::length(hitVector) < glm::length(shadowRayDir)) {
-							shadowed = true;
+                            // only shadow if not hitting the light itself
+                            if (i != embree2DrawableShapeIndex[ray.hit.geomID]){
+                                shadowed = true;
+                            }
 						}
 					}
 				}
