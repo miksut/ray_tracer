@@ -38,6 +38,7 @@ namespace cgCourse
 		connectVar("imageFormat", &imageFormat);
 		connectVar("threads", &threads);
         connectVar("samplesAA", &samplesAA);
+        connectVar("notificationSounds", &notificationSounds);
 
 		// Framebuffer size and window size may be different in high-DPI displays
 		// setup camera with standard view (static for our case)
@@ -183,7 +184,13 @@ namespace cgCourse
 		auto end = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
 		std::cout << "Raytracing took " << duration.count() << " seconds..." << std::endl;
-		std::cout << '\a';
+        
+        if (notificationSounds){
+            std::cout << '\a';
+#if __APPLE__
+            system("say \"raytracing completed\"");
+#endif
+        }
 	}
 }
 

@@ -64,6 +64,7 @@ namespace cgCourse
 	  ImageFormat imageFormat = ImageFormat::PNG; // image format for image to be saved
 	  int threads = 4; // threads to use for raytracing
       int samplesAA = 4; // samples to use for anti aliasing
+      bool notificationSounds = false; // to have notification sounds when raytracing ended
   };
 }
 

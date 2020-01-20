@@ -146,19 +146,17 @@ namespace cgCourse
 			  ImGui::AlignTextToFramePadding();
 			  ImGui::SliderInt("Threads", (int*)getVar("threads"), 1, 16); 
 
+              ImGui::Checkbox("Notification Sounds", (bool*) getVar("notificationSounds"));
 			  ImGui::Separator();
 
 			  ImGui::Dummy(ImVec2(0, 30.0));
 
-			  
-
 			  ImGui::Text("Run a raytracer: ");
 			  ImGui::Spacing();
               
-              ImGui::Text("Antialiasing: ");
-              static int aaCaster;
-              ImGui::RadioButton("No", &aaCaster, 0); ImGui::SameLine();
-              ImGui::RadioButton("Yes", &aaCaster, 1);
+              static bool aaCaster;
+              ImGui::Checkbox("Antialiasing", &aaCaster);
+              
               ImGui::Spacing();
               
               if (aaCaster){
@@ -184,10 +182,8 @@ namespace cgCourse
 			  ImGui::Separator();
 			  ImGui::Spacing();
               
-              ImGui::Text("Antialiasing: ");
-              static int aaWhitted;
-              ImGui::RadioButton("No##2", &aaWhitted, 0); ImGui::SameLine();
-              ImGui::RadioButton("Yes##2", &aaWhitted, 1); ImGui::SameLine();
+              static bool aaWhitted;
+              ImGui::Checkbox("Antialiasing##2", &aaWhitted);
               ImGui::Spacing();
               
               if (aaWhitted){
