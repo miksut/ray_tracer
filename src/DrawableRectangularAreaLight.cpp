@@ -6,20 +6,18 @@ namespace cgCourse {
 
 	DrawableRectangularAreaLight::DrawableRectangularAreaLight(glm::vec3 center, glm::vec3 lightColor, glm::vec3 halfAxisH, glm::vec3 halfAxisV) : SamplableLight(center, lightColor), halfAxisH(halfAxisH), halfAxisV(halfAxisV) {
 		
-		main[0] = center + halfAxisH + halfAxisV;
-		main[1] = center - halfAxisH + halfAxisV;
-		main[2] = center - halfAxisH - halfAxisV;
-		main[3] = center + halfAxisH - halfAxisV;
-
-		this->positions.assign(main, main + 4);
-
-
+        // add 4 main positions of rectangle
+		this->positions.push_back(center + halfAxisH + halfAxisV);
+		this->positions.push_back(center - halfAxisH + halfAxisV);
+		this->positions.push_back(center - halfAxisH - halfAxisV);
+		this->positions.push_back(center + halfAxisH - halfAxisV);
+        
+        //faces
 		this->faces = {
 			{ 0, 1, 2 }, { 2, 3, 0 },
 		};
 
 		this->primitiveType = triangle;
-
 	}
 
 	std::vector<glm::vec3> DrawableRectangularAreaLight::getSamplePositions(SampleAmount amount) {

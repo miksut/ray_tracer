@@ -17,6 +17,7 @@ namespace cgCourse {
 
 	struct RoomElements 
 	{
+            // room data like normals, positions, vertex colors etc.. for indivual walls (0-4)
 			std::vector<float> element0 = { -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0, 3.0, 2.0, 2.0, 1.0, 0.0, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f};
 			std::vector<float> element1 = { 1.0f, 1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0, 3.0, 2.0, 2.0, 1.0, 0.0, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f};
 			std::vector<float> element2 = { -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0, 3.0, 2.0, 2.0, 1.0, 0.0, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f };

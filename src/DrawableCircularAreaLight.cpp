@@ -6,10 +6,13 @@
 namespace cgCourse {
 	DrawableCircularAreaLight::DrawableCircularAreaLight(glm::vec3 center, glm::vec3 lightColor, float radius) : SamplableLight(center, lightColor), radius(radius) {
 		
+        // add center vertex
 		positions.push_back(position);
-
+        
+        // create circular disc with 32 subdivision
 		int subdiv = 32;
-
+        
+        // vertices
 		for (int i = 0; i < subdiv; i++) {
 			float ratio = i / (float) subdiv;
 
@@ -24,7 +27,8 @@ namespace cgCourse {
 		for (int i = 0; i < subdiv - 1; i++) {
 			faces.push_back(glm::vec3(0, i + 1, i + 2));
 		}
-
+        
+        // faces
 		faces.push_back(glm::vec3(0, 32, 1));
 
 		this->primitiveType = triangle;
@@ -38,12 +42,14 @@ namespace cgCourse {
 
 		switch (amount) {
 		case SampleAmount::High:
+            // add points along different radii
 			addPointsInCircle(result, radius, 16);
 			addPointsInCircle(result, radius * 0.75, 8);
 			addPointsInCircle(result, radius * 0.5, 4);
 			addPointsInCircle(result, radius * 0.25, 2);
 			break;
 		case SampleAmount::Medium:
+            // add points along different radii
 			addPointsInCircle(result, radius, 8);
 			addPointsInCircle(result, radius * 0.5, 4);
 			break;
@@ -57,6 +63,8 @@ namespace cgCourse {
 	}
 
 	void DrawableCircularAreaLight::addPointsInCircle(std::vector<glm::vec3>& vec, float radius, int amount) {
+        
+        // sample points along circle with radius radius
 		for (int i = 0; i < amount; i++) {
 			float ratio = i / (float)amount;
 

@@ -51,12 +51,9 @@ namespace cgCourse
 
 		programForMeshPhong = std::make_shared<ShaderProgram>(this->getPathToExecutable() + "../../shader/Mesh_phong");
 		programForMeshBlinn = std::make_shared<ShaderProgram>(this->getPathToExecutable() + "../../shader/Mesh_blinn");
-
-		_parser = std::make_shared<parser>(this, this->getPathToExecutable(), "../../res/scenes/default.cgl");
-		_scene = _parser->getScene();
-
-		_scene->addLightVariables(programForMeshBlinn);
-		_scene->addLightVariables(programForMeshPhong);
+        
+        // load the default scene
+        loadScene((char*)std::string("default.cgl").c_str());
 
 		return true;
 	}
@@ -100,6 +97,7 @@ namespace cgCourse
 
 		activeProgram->setUniform3fv("camPos", this->cam.getPosition());
 
+        // render our own scene object
 		this->_scene->draw(this->cam.getProjectionMatrix(), this->cam.getViewMatrix(), activeProgram);
 
 		renderGui();
@@ -114,54 +112,64 @@ namespace cgCourse
 
 	void GLEmbreeTracer::loadScene(char* sceneName)
 	{
-		std::string str(sceneName);
+        // Initialize parser and read scene into scene field
+        std::string str(sceneName);
 		_parser = std::make_shared<parser>(this, this->getPathToExecutable(), "../../res/scenes/" + str);
 		_scene = _parser->getScene();
 
+        // Since we use the scene for real time rendering, we need to set uniforms for all shaders
 		_scene->addLightVariables(programForMeshBlinn);
 		_scene->addLightVariables(programForMeshPhong);
 	}
 
 	void GLEmbreeTracer::rayCaster(bool antiAliasing)
 	{
+        //raycaster does not have recursiond and is not whitted (last parameter)
 		auto tracer = new BaseTracer(getWindowSize().x, getWindowSize().y, _scene, 0, antiAliasing, false);
 		runTracer(tracer);
 	}
 
 	void GLEmbreeTracer::whittedTracer(bool antiAliasing, int recursions)
 	{
+        //whitted tracer uses recursion (2nd last) and is whitted (last) parameter
 		auto tracer = new BaseTracer(getWindowSize().x, getWindowSize().y, _scene, recursions, antiAliasing, true);
 		runTracer(tracer);
 	}
 
 	void GLEmbreeTracer::runTracer(RayTracer* tracer) {
+        //measure time for raytracing
 		auto start = std::chrono::high_resolution_clock::now();
-
+        
 		std::cout << "Starting tracing with " << threads << " threads..." << std::endl;
 		int y = getWindowSize().y;
-		float widthPerThread = (y / (float)threads);
+		float heightPerThread = (y / (float)threads);   // calculate the height per thread
 
-		std::vector<std::future<float*>> futures;
-		std::vector<int> imageSizes;
+		std::vector<std::future<float*>> futures;       // futures for images to be traced
+		std::vector<int> imageSizes;                    // image sizes of these images
+        
+        // start each thread and save its image size + their future
 		for (int i = 0; i < threads; i++) {
-			int start = (int)(i * widthPerThread);
-			int end = (int)(i * widthPerThread + widthPerThread);
+			int start = (int)(i * heightPerThread);
+			int end = (int)(i * heightPerThread + heightPerThread);
 			imageSizes.push_back((end - start) * getWindowSize().x * 3);
 			futures.push_back(tracer->start(cam, samplesAA, start, end));
 		}
-
+        
+        // wait on threads to finish
 		std::vector<float*> result;
 		for (auto& e : futures) {
 			result.push_back(e.get());
 		}
-
+        
+        // construct image from pieces
 		float* image = new float[getWindowSize().x * getWindowSize().y * 3];
 		int loc = 0;
 		for (int i = 0; i < result.size(); i++) {
 			memcpy(image + loc, result[i], imageSizes[i] * sizeof(float));
 			loc += imageSizes[i];
 		}
-
+        
+        // save image to disk
 		if (this->imageFormat == 0) {
 			ImageSaver::saveImageAsPPM(this->getPathToExecutable() + "../../" + tracedFileName, getWindowSize().x, getWindowSize().y, image);
 		}
@@ -170,7 +178,8 @@ namespace cgCourse
 		};
 
 		delete[] image;
-
+        
+        // stop timer and output timing + sound effect
 		auto end = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
 		std::cout << "Raytracing took " << duration.count() << " seconds..." << std::endl;

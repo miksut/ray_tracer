@@ -17,6 +17,9 @@
 
 namespace cgCourse {
     
+    // we ported most of the embree helper class to the Scene class
+    
+    // struct was given -> we changed a few things (see comments)
     struct ray_hit: public RTCRayHit
     {
         ray_hit(const glm::vec3& origin = glm::vec3(0.0f),
@@ -64,20 +67,23 @@ namespace cgCourse {
         
         const glm::vec3 dir() const
         {
+            //normalize output
             return glm::normalize(glm::vec3(ray.dir_x, ray.dir_y, ray.dir_z));
         }
         
         const glm::vec3 normal() const
         {
+            //normalize output
             return glm::normalize(glm::vec3(hit.Ng_x, hit.Ng_y, hit.Ng_z));
         }
         
+        // intersect Position of the ray
         const glm::vec3 intersectPos() const
         {
             return org() + ray.tfar * dir();
         }
     };
-
+    
     struct color
     {
         color(float r, float g, float b) : r(r), g(g), b(b) {};
@@ -104,31 +110,11 @@ namespace cgCourse {
         const unsigned id;
     };
 
-    // lights
-
     struct directional_light : light
     {
         directional_light(const unsigned int id, color i, vector3 d) : light(id), intensity(i), direction(d) {};
         const color intensity;
         const vector3 direction;
-    };
-
-    struct circular_area_light : light
-    {
-        circular_area_light(const unsigned int id, color i, vector3 p, float r) : light(id), intensity(i), position(p), radius(r) {};
-        const color intensity;
-        const vector3 position;
-        const float radius;
-    };
-
-    struct rectangular_area_light : light
-    {
-        rectangular_area_light(const unsigned int id, color i, vector3 p, vector3 h, vector3 v) : light(id), intensity(i), position(p), horizontal_half_axis(h), vertical_half_axis(v) {};
-        const color intensity;
-        const vector3 position;
-        
-        const vector3 horizontal_half_axis;
-        const vector3 vertical_half_axis;
     };
 
     class GLEmbreeTracer;
@@ -159,15 +145,20 @@ namespace cgCourse {
 
 		void add_room_object(const unsigned& id, unsigned mat_id, float scale, vector3 pos, vector3 col, std::vector<float> element);
         
+        // commit scene to embree
         void CommitScene(GLEmbreeTracer* tracer);
         
         RTCScene getRTCScene();
 		
+        // draw method for GLApp to draw the scene
 		void draw(const glm::mat4& _projectionMatrix, const glm::mat4& _viewMatrix, std::shared_ptr<ShaderProgram> _shaderProgram);
 		
 		void addLightVariables(const std::shared_ptr<ShaderProgram>& _program);
         
+        // shade locally (phong-blinn)
         glm::vec3 shadeLocal(ray_hit &r, bool shadows);
+        
+        // shade whitted with recursions (depth n)
         glm::vec3 shadeWhitted(ray_hit &r, int n);
         
 	private:
@@ -175,12 +166,19 @@ namespace cgCourse {
         unsigned add_mesh(const DrawableShape & mesh, const glm::mat4 & model_matrix = glm::mat4());
 		bool intersect(ray_hit &r);
         
+        // this map assigns an embree geomId to the index in our drawables vector
 		std::map<unsigned, unsigned> embree2DrawableShapeIndex;
-
-		std::vector<DrawableShape*> drawables;
-		std::map<unsigned, std::shared_ptr<Material>> materials; //maps scene id to material
         
+        // all drawables for real time rendering (includes lights + point lights)
+		std::vector<DrawableShape*> drawableShapes;
+		
+        //maps scene id to material
+        std::map<unsigned, std::shared_ptr<Material>> materials;
+        
+        //directional lights in the scene, these are not drawables, because their directional
 		std::vector<directional_light*> dirLights;
+        
+        //amount of samples for area lights (Low, Medium, High)
 		SampleAmount sampleAmount = SampleAmount::Low;
 	};
     

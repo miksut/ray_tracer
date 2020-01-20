@@ -29,9 +29,7 @@ namespace cgCourse
                                GLuint normAttribLoc,
                                GLuint texAttribLoc,
                                GLuint tangentsAttribLoc);
-		bool isLight;
-		glm::vec3 lightColor;
-
+		
     protected:
         GLuint getIndexBufferId() const;
         GLuint getVertexArrayId() const;

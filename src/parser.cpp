@@ -138,6 +138,7 @@ namespace cgCourse {
 		{
 			ss >> scale >> x >> y >> z >> rd >> gr >> bl;
 			read_line();
+            // each wall gets its own material
 			ss >> id_mat1 >> id_mat2 >> id_mat3 >> id_mat4;
 			std::vector<unsigned> id_mats = { id_mat, id_mat1, id_mat2, id_mat3, id_mat4 };
 

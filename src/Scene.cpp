@@ -16,11 +16,14 @@ namespace cgCourse {
     }
     
     Scene::Scene(){
+        //init embree
         device = rtcNewDevice(NULL);
         rtcSetDeviceErrorFunction(device, embree_error, NULL);
         
+        //connect vars with gui
 		connectVar("sampleAmount", &sampleAmount);
-
+        
+        //init embree scene
         scene = rtcNewScene(device);
     }
     
@@ -30,11 +33,10 @@ namespace cgCourse {
     }
 
     void Scene::add_positional_light(const unsigned& id, color c, vector3 pos){
-        
         auto drawable = new DrawablePointLight(pos.toGlm(), c.toGlm());
 
         drawable->createVertexArray(0, 1, 2, 3, 4);
-        drawables.push_back(drawable);
+        drawableShapes.push_back(drawable);
     }
     
     void Scene::add_directional_light(const unsigned & id, color c, vector3 dir){
@@ -43,20 +45,22 @@ namespace cgCourse {
     
     void Scene::add_circular_area_light(const unsigned& id, color c, vector3 pos, float r){
 		auto drawable = new DrawableCircularAreaLight(pos.toGlm(), c.toGlm(), r);
-
-		embree2DrawableShapeIndex[add_mesh(*drawable, drawable->getModelMatrix())] = drawables.size();
+        
+        // add mesh to embree BVH and use the given id for our map (embreeID -> drawableIndex)
+		embree2DrawableShapeIndex[add_mesh(*drawable, drawable->getModelMatrix())] = drawableShapes.size();
 
 		drawable->createVertexArray(0, 1, 2, 3, 4);
-		drawables.push_back(drawable);
+		drawableShapes.push_back(drawable);
     }
     
     void Scene::add_rectangular_area_light(const unsigned& id, color c, vector3 pos, vector3 h, vector3 v){
 		auto drawable = new DrawableRectangularAreaLight(pos.toGlm(), c.toGlm(), h.toGlm(), v.toGlm());
 		
-		embree2DrawableShapeIndex[add_mesh(*drawable, drawable->getModelMatrix())] = drawables.size();
+        // add mesh to embree BVH and use the given id for our map (embreeID -> drawableIndex)
+		embree2DrawableShapeIndex[add_mesh(*drawable, drawable->getModelMatrix())] = drawableShapes.size();
 
 		drawable->createVertexArray(0, 1, 2, 3, 4);
-		drawables.push_back(drawable);
+		drawableShapes.push_back(drawable);
     }
     
     void Scene::add_diffuse_material(const unsigned& id, color d){
@@ -95,13 +99,14 @@ namespace cgCourse {
     void Scene::add_sphere_object(const unsigned& id, unsigned mat_id, vector3 pos, float r){
 		auto xyzr = glm::vec4(pos.x, pos.y, pos.z, r);
 		
-		embree2DrawableShapeIndex[add_sphere(xyzr)] = drawables.size();
+        // add mesh to embree BVH and use the given id for our map (embreeID -> drawableIndex)
+		embree2DrawableShapeIndex[add_sphere(xyzr)] = drawableShapes.size();
 
 		auto drawable = new Sphere(xyzr);
 		drawable->createVertexArray(0, 1, 2, 3, 4);
 
 		drawable->setMaterial(materials[mat_id]);
-		drawables.push_back(drawable);
+		drawableShapes.push_back(drawable);
     }
     
     void Scene::add_mesh_object(const unsigned& id, unsigned mat_id, std::string f, std::string path, vector3 pos, float scale){
@@ -113,9 +118,10 @@ namespace cgCourse {
 		drawable->setScaling(glm::vec3(scale));
 		drawable->setMaterial(materials[mat_id]);
 		
-		embree2DrawableShapeIndex[add_mesh(*drawable->elements[0], drawable->getModelMatrix())] = drawables.size();
+        // add mesh to embree BVH and use the given id for our map (embreeID -> drawableIndex)
+		embree2DrawableShapeIndex[add_mesh(*drawable->elements[0], drawable->getModelMatrix())] = drawableShapes.size();
         
-        drawables.push_back(drawable);
+        drawableShapes.push_back(drawable);
     }
 
 	void Scene::add_room_object(const unsigned& id, unsigned mat_id, float scale, vector3 pos, vector3 col, std::vector<float> element) {
@@ -125,10 +131,11 @@ namespace cgCourse {
 		drawable->setScaling(glm::vec3(scale));
 		drawable->setPosition(pos.toGlm());
 		drawable->setMaterial(materials[mat_id]);
-
-		embree2DrawableShapeIndex[add_mesh(*drawable, drawable->getModelMatrix())] = drawables.size();
+        
+        // add mesh to embree BVH and use the given id for our map (embreeID -> drawableIndex)
+		embree2DrawableShapeIndex[add_mesh(*drawable, drawable->getModelMatrix())] = drawableShapes.size();
 		
-		drawables.push_back(drawable);
+		drawableShapes.push_back(drawable);
 	}
     
     RTCScene Scene::getRTCScene(){
@@ -140,18 +147,24 @@ namespace cgCourse {
     }
 
 	void Scene::draw(const glm::mat4& _projectionMatrix, const glm::mat4& _viewMatrix, std::shared_ptr<ShaderProgram> _shaderProgram) {
-		for (int i = 0; i < drawables.size(); i++) {
-			auto light = dynamic_cast<Light*>(drawables[i]);
-
+        
+        //loop through drawable Shapes and draw them individually
+		for (int i = 0; i < drawableShapes.size(); i++) {
+            
+            // check if our drawableShape represent a Light
+			auto light = dynamic_cast<Light*>(drawableShapes[i]);
 			if (light != nullptr) {
+                
+                // if it is a light, set lightcolor and isLight accordingly
 				_shaderProgram->setUniform3fv("lightColor", light->getLightColor());
 				_shaderProgram->setUniformi("isLight", true);
 
-				//dont cull area lights!
+				//dont cull lights!
 				glDisable(GL_CULL_FACE);
 			}
-			drawables[i]->draw(_projectionMatrix, _viewMatrix, _shaderProgram);
+			drawableShapes[i]->draw(_projectionMatrix, _viewMatrix, _shaderProgram);
 			
+            // enable culling and reset isLight uniform
 			glEnable(GL_CULL_FACE);
 			_shaderProgram->setUniformi("isLight", false);
 		}
@@ -159,11 +172,11 @@ namespace cgCourse {
 
 	void Scene::addLightVariables(const std::shared_ptr<ShaderProgram>& _program) {
 		
-		//point lights
+		//point lights + area lights
 		int lightCount = 0;
 
-		for (int i = 0; i < drawables.size(); i++) {
-			auto pos_light = dynamic_cast<SamplableLight*>(drawables[i]);
+		for (int i = 0; i < drawableShapes.size(); i++) {
+			auto pos_light = dynamic_cast<SamplableLight*>(drawableShapes[i]);
 
 			if (pos_light != nullptr) {
 				auto startString = std::string("lights[") + std::to_string(lightCount) + std::string("]");
@@ -176,7 +189,7 @@ namespace cgCourse {
 		}
 		_program->setUniformi("lightCount", lightCount);
 
-		//direction lights
+		//directional lights
 		int dirLightCount = 0;
 		for (int i = 0; i < dirLights.size(); i++) {
 			auto dir_light = dirLights[i];
@@ -194,11 +207,14 @@ namespace cgCourse {
         
         glm::vec3 output = glm::vec3(0,0,0);
         
-		auto drawable = drawables[embree2DrawableShapeIndex[r.hit.geomID]];
+        // get the drawable representing the thing we hit with embree and its material
+		auto drawable = drawableShapes[embree2DrawableShapeIndex[r.hit.geomID]];
         auto mat = drawable->getMaterial();
-
+        
+        // check if we hit a light
 		auto light = dynamic_cast<Light*>(drawable);
 		if (light != nullptr) {
+            // if we hit a light, we just return lightcolor
 			return light->getLightColor();
 		}
         
@@ -222,24 +238,31 @@ namespace cgCourse {
 			if (shadows) {
 				auto shadowRayDir = lightDir;
 				auto shadowRayDirN = glm::normalize(shadowRayDir);
-
+                
+                // start a little bit in correct direction to not create self intersections
 				auto ray = ray_hit(r.intersectPos() + (shadowRayDirN * 0.001f), shadowRayDirN);
 				if (intersect(ray)) {
 					shadowed = true;
 				}
 			}
+            
+            // add lightinformation if not in shadow
 			output += (1.0f - shadowed) * (diffuse + specular);
 		}
 
-        //samplable lights
-        for (int i = 0; i < drawables.size(); i++){
+        //samplable lights (points + area lights)
+        for (int i = 0; i < drawableShapes.size(); i++){
             
-			auto light = dynamic_cast<SamplableLight*>(drawables[i]);
+			auto light = dynamic_cast<SamplableLight*>(drawableShapes[i]);
+            
+            // if the drawable shape is not a sampleable light, continue loop
 			if (light == nullptr)
 				continue;
-
+            
+            // get the sample positions for each samplable light
 			auto samplePositions = light->getSamplePositions(sampleAmount);
-
+            
+            // calculate normal point light color
 			for (int j = 0; j < samplePositions.size(); j++) {
 				glm::vec3 lightDir = glm::normalize(samplePositions[j] - r.intersectPos());
 				glm::vec3 lightColor = light->getLightColor();
@@ -259,16 +282,19 @@ namespace cgCourse {
 				if (shadows) {
 					auto shadowRayDir = lightDir;
 					auto shadowRayDirN = glm::normalize(shadowRayDir);
-
+                    
+                    // start a little bit in correct direction to not create self intersections
 					auto ray = ray_hit(r.intersectPos() + (shadowRayDirN * 0.001f), shadowRayDirN);
 					if (intersect(ray)) {
 						auto hitVector = ray.intersectPos() - ray.org();
-
+                        
+                        // if the hit object is farther away than the light => not shadowed
 						if (glm::length(hitVector) < glm::length(shadowRayDir)) {
 							shadowed = true;
 						}
 					}
 				}
+                // add lightinformation if not in shadow (+ divide with amount of samples)
 				output += ((1.0f - shadowed) * (diffuse + specular)) / (float) samplePositions.size();
 			}
         }
@@ -279,13 +305,16 @@ namespace cgCourse {
     glm::vec3 Scene::shadeWhitted(ray_hit &r, int n){
         glm::vec3 output = glm::vec3(0,0,0);
 		
+        // always add local color first
 		output += shadeLocal(r, true);
 
 		if (n == 0) {
+            // stop recursion if n == 0
 			return output;
 		}
-
-		auto drawable = drawables[embree2DrawableShapeIndex[r.hit.geomID]];
+        
+        // get the drawable representing the thing we hit with embree and its material
+		auto drawable = drawableShapes[embree2DrawableShapeIndex[r.hit.geomID]];
 		auto mat = drawable->getMaterial();
 
 		auto light = dynamic_cast<Light*>(drawable);
@@ -293,11 +322,15 @@ namespace cgCourse {
 			//dont reflect if we hit a light
 			return output;
 		}
-
+        
+        // reflect ray
 		auto reflected = glm::normalize(glm::reflect(r.dir(), r.normal()));
-
+        
+        // start ray a little late to not allow self intersections
 		auto reflected_ray = ray_hit(r.intersectPos() + (reflected * 0.001f), reflected);
-		if (intersect(reflected_ray)) {
+		
+        if (intersect(reflected_ray)) {
+            // if we hit something then recurse
 			output += (1.0f * mat->ks) * shadeWhitted(reflected_ray, n - 1);
 		}
         

@@ -24,6 +24,7 @@ namespace cgCourse
   class GLEmbreeTracer : public GLApp
   {
     public:
+      // how to save the image (format)
 	  enum ImageFormat {
 		  PPM = 0, PNG = 1
 	  };
@@ -34,7 +35,11 @@ namespace cgCourse
       bool update(double dt) override;
       bool render() override;
       bool end() override;
+      
+      // loads a scene into our _scene field (it has to be in the res/scene folder
 	  void loadScene(char* sceneName);
+      
+      //each raytracer gets its own function (they call each runTracer)
       void rayCaster(bool antiAliasing);
       void whittedTracer(bool antiAliasing, int recursions);
       
@@ -43,11 +48,13 @@ namespace cgCourse
       std::shared_ptr<ShaderProgram> programForMeshBlinn;
       std::shared_ptr<ShaderProgram> activeProgram;
       
+      // parser to read scene file and scene object
       std::shared_ptr<parser> _parser;
       std::shared_ptr<Scene> _scene;
       
       glm::mat4 mvpMatrix=glm::mat4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
-
+      
+      // actual method to run a raytracer
 	  void runTracer(RayTracer* tracer);
 
       Camera cam;

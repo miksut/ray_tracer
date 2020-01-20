@@ -14,8 +14,6 @@ namespace cgCourse {
 	private:
 		glm::vec3 halfAxisH;
 		glm::vec3 halfAxisV;
-
-		glm::vec3 main[4];
 	};
 }
 

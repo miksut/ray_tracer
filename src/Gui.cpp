@@ -162,6 +162,7 @@ namespace cgCourse
               ImGui::Spacing();
               
               if (aaCaster){
+                  // both AA GUIS store their own value but set the same one
                   static int samplesAACaster = 4;
                   ImGui::Text("AA Samples: ");
                   ImGui::RadioButton("4", &samplesAACaster, 4); ImGui::SameLine();
@@ -190,6 +191,7 @@ namespace cgCourse
               ImGui::Spacing();
               
               if (aaWhitted){
+                  // both AA GUIS store their own value but set the same one
                   static int samplesAAWhitted = 4;
                   ImGui::Text("AA Samples: ");
                   ImGui::RadioButton("4##2", &samplesAAWhitted, 4); ImGui::SameLine();
