@@ -27,9 +27,14 @@ namespace cgCourse {
 					auto ray = ray_hit(cam.getPosition(), s);
 
 					if (intersect(scene->getRTCScene(), ray)) {
-
-						auto output = scene->shadeWhitted(ray, recursions);
-                        //auto output = scene->shadeLocal(ray, false);
+                        auto output = glm::vec3(0);
+                        
+                        if (whitted){
+                            output = scene->shadeWhitted(ray, recursions);
+                        } else {
+                            output = scene->shadeLocal(ray, false);
+                        }
+                        
 						auto rgb = glm::vec3(glm::clamp(output.x, 0.0f, 1.0f), glm::clamp(output.y, 0.0f, 1.0f), glm::clamp(output.z, 0.0f, 1.0f));
 
 						frame[3 * ((y - startY) * width + x)] = rgb.r;
@@ -72,7 +77,6 @@ namespace cgCourse {
 						}
 					}
 					rgb /= samples;
-					//rgb = glm::vec3(glm::clamp(rgb.x, 0.0f, 1.0f), glm::clamp(rgb.y, 0.0f, 1.0f), glm::clamp(rgb.z, 0.0f, 1.0f));
 
 					frame[3 * ((y - startY) * width + x)] = rgb.r;
 					frame[3 * ((y - startY) * width + x) + 1] = rgb.g;
