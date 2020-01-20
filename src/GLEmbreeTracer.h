@@ -35,9 +35,8 @@ namespace cgCourse
       bool render() override;
       bool end() override;
 	  void loadScene(char* sceneName);
-      void tracer();
-      void rayCaster();
-      void whittedTracer(int recursions);
+      void rayCaster(bool antiAliasing);
+      void whittedTracer(bool antiAliasing, int recursions);
       
     private:
       std::shared_ptr<ShaderProgram> programForMeshPhong;
@@ -49,15 +48,15 @@ namespace cgCourse
       
       glm::mat4 mvpMatrix=glm::mat4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
 
-	  void runTracer(std::unique_ptr<RayTracer>& tracer);
+	  void runTracer(RayTracer* tracer);
 
       Camera cam;
 
       int shadingAlgorithm = 1; //phong, blinn
 	  char tracedFileName[128] = "tracedImage"; //filename of the image to be saved
 	  ImageFormat imageFormat = ImageFormat::PNG; // image format for image to be saved
-	  int antiAliasing = 0;
 	  int threads = 4; // threads to use for raytracing
+      int samplesAA = 4; // samples to use for anti aliasing
   };
 }
 

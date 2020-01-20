@@ -150,32 +150,58 @@ namespace cgCourse
 
 			  ImGui::Dummy(ImVec2(0, 30.0));
 
-			  ImGui::Separator();
-			  ImGui::Text("Antialiasing: "); ImGui::SameLine();
-
-			  ImGui::RadioButton("No", (int *)getVar("Antialiasing"), 0); ImGui::SameLine();
-			  ImGui::RadioButton("Yes", (int *)getVar("Antialiasing"), 1); ImGui::SameLine();
-			 
-			  ImGui::Separator();
+			  
 
 			  ImGui::Text("Run a raytracer: ");
 			  ImGui::Spacing();
-			  if (GLApp::current && ImGui::Button("Simple", ImVec2(-1, 30)))
-			  {
-				  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->tracer();
-			  }
-			  ImGui::Spacing();
-			  ImGui::Separator();
-			  ImGui::Spacing();
+              
+              ImGui::Text("Antialiasing: ");
+              static int aaCaster;
+              ImGui::RadioButton("No", &aaCaster, 0); ImGui::SameLine();
+              ImGui::RadioButton("Yes", &aaCaster, 1);
+              ImGui::Spacing();
+              
+              if (aaCaster){
+                  static int samplesAACaster = 4;
+                  ImGui::Text("AA Samples: ");
+                  ImGui::RadioButton("4", &samplesAACaster, 4); ImGui::SameLine();
+                  ImGui::RadioButton("9", &samplesAACaster, 9); ImGui::SameLine();
+                  ImGui::RadioButton("16", &samplesAACaster, 16); ImGui::SameLine();
+                  ImGui::RadioButton("25", &samplesAACaster, 25);
+                  ImGui::Spacing();
+                  
+                  int* samplesAA = (int*) getVar("samplesAA");
+                  *samplesAA = samplesAACaster;
+              }
+              
+              
               if (GLApp::current && ImGui::Button("RayCaster", ImVec2(-1, 30)))
               {
-                  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->rayCaster();
+                  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->rayCaster(aaCaster);
               }
 			  ImGui::Spacing();
 			  ImGui::Separator();
 			  ImGui::Spacing();
-			  static int recursions = 3;
-			  ImGui::SliderInt("Recursions", &recursions, 0, 10);
+              
+              ImGui::Text("Antialiasing: ");
+              static int aaWhitted;
+              ImGui::RadioButton("No##2", &aaWhitted, 0); ImGui::SameLine();
+              ImGui::RadioButton("Yes##2", &aaWhitted, 1); ImGui::SameLine();
+              ImGui::Spacing();
+              
+              if (aaWhitted){
+                  static int samplesAAWhitted = 4;
+                  ImGui::Text("AA Samples: ");
+                  ImGui::RadioButton("4##2", &samplesAAWhitted, 4); ImGui::SameLine();
+                  ImGui::RadioButton("9##2", &samplesAAWhitted, 9); ImGui::SameLine();
+                  ImGui::RadioButton("16##2", &samplesAAWhitted, 16); ImGui::SameLine();
+                  ImGui::RadioButton("25##2", &samplesAAWhitted, 25);
+                  ImGui::Spacing();
+                  
+                  int* samplesAA = (int*) getVar("samplesAA");
+                  *samplesAA = samplesAAWhitted;
+              }
+              
 
 			  ImGui::AlignTextToFramePadding();
 			  ImGui::Text("Light Samples: ");
@@ -183,11 +209,17 @@ namespace cgCourse
 			  ImGui::RadioButton("Low", (int*)getVar("sampleAmount"), 0); ImGui::SameLine();
 			  ImGui::RadioButton("Medium", (int*)getVar("sampleAmount"), 1); ImGui::SameLine();
 			  ImGui::RadioButton("High", (int*)getVar("sampleAmount"), 2);
-			  ImGui::Spacing();
-
+			  
+              ImGui::Spacing();
+              
+              static int recursions = 3;
+              ImGui::SliderInt("Recursions", &recursions, 0, 10);
+              
+              ImGui::Spacing();
+              
               if (GLApp::current && ImGui::Button("Whitted", ImVec2(-1, 30)))
               {
-                  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->whittedTracer(recursions);
+                  dynamic_cast<GLEmbreeTracer*>(GLApp::current)->whittedTracer(aaWhitted, recursions);
               }
 			  ImGui::Spacing();
 			  ImGui::Separator();

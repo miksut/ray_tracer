@@ -14,9 +14,7 @@
 #include "Gui.h"
 #include <memory>
 
-#include "SimpleRayTracer.h"
-#include "RayCaster.h"
-#include "WhittedTracer.h"
+#include "BaseTracer.h"
 
 #include <thread>
 #include <chrono>
@@ -38,8 +36,8 @@ namespace cgCourse
 		connectVar("shadingAlgorithm", &shadingAlgorithm);
 		connectVar("tracedFileName", &tracedFileName);
 		connectVar("imageFormat", &imageFormat);
-		connectVar("Antialiasing", &antiAliasing);
 		connectVar("threads", &threads);
+        connectVar("samplesAA", &samplesAA);
 
 		// Framebuffer size and window size may be different in high-DPI displays
 		// setup camera with standard view (static for our case)
@@ -124,25 +122,19 @@ namespace cgCourse
 		_scene->addLightVariables(programForMeshPhong);
 	}
 
-	void GLEmbreeTracer::tracer()
+	void GLEmbreeTracer::rayCaster(bool antiAliasing)
 	{
-		auto tracer = std::unique_ptr<RayTracer>(new SimpleRayTracer(getWindowSize().x, getWindowSize().y, _scene));
+		auto tracer = new BaseTracer(getWindowSize().x, getWindowSize().y, _scene, 0, antiAliasing, false);
 		runTracer(tracer);
 	}
 
-	void GLEmbreeTracer::rayCaster()
+	void GLEmbreeTracer::whittedTracer(bool antiAliasing, int recursions)
 	{
-		auto tracer = std::unique_ptr<RayTracer>(new RayCaster(getWindowSize().x, getWindowSize().y, _scene));
+		auto tracer = new BaseTracer(getWindowSize().x, getWindowSize().y, _scene, recursions, antiAliasing, true);
 		runTracer(tracer);
 	}
 
-	void GLEmbreeTracer::whittedTracer(int recursions)
-	{
-		auto tracer = std::unique_ptr<RayTracer>(new WhittedTracer(getWindowSize().x, getWindowSize().y, _scene, recursions));
-		runTracer(tracer);
-	}
-
-	void GLEmbreeTracer::runTracer(std::unique_ptr<RayTracer>& tracer) {
+	void GLEmbreeTracer::runTracer(RayTracer* tracer) {
 		auto start = std::chrono::high_resolution_clock::now();
 
 		std::cout << "Starting tracing with " << threads << " threads..." << std::endl;
@@ -155,7 +147,7 @@ namespace cgCourse
 			int start = (int)(i * widthPerThread);
 			int end = (int)(i * widthPerThread + widthPerThread);
 			imageSizes.push_back((end - start) * getWindowSize().x * 3);
-			futures.push_back(tracer->start(cam, 1, start, end));
+			futures.push_back(tracer->start(cam, samplesAA, start, end));
 		}
 
 		std::vector<float*> result;
