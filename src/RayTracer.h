@@ -6,6 +6,7 @@
 #include <memory>
 #include <future>
 #include <iostream>
+#include <random>
 
 namespace cgCourse {
     class RayTracer {
@@ -16,6 +17,6 @@ namespace cgCourse {
     protected:
         int width, height;
         std::shared_ptr<Scene> scene;
-        
+		int antiAliasing;
     };
 }

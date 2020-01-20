@@ -151,6 +151,12 @@ namespace cgCourse
 			  ImGui::Dummy(ImVec2(0, 30.0));
 
 			  ImGui::Separator();
+			  ImGui::Text("Antialiasing: "); ImGui::SameLine();
+
+			  ImGui::RadioButton("No", (int *)getVar("Antialiasing"), 0); ImGui::SameLine();
+			  ImGui::RadioButton("Yes", (int *)getVar("Antialiasing"), 1); ImGui::SameLine();
+			 
+			  ImGui::Separator();
 
 			  ImGui::Text("Run a raytracer: ");
 			  ImGui::Spacing();

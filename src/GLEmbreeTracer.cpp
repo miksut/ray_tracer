@@ -38,6 +38,7 @@ namespace cgCourse
 		connectVar("shadingAlgorithm", &shadingAlgorithm);
 		connectVar("tracedFileName", &tracedFileName);
 		connectVar("imageFormat", &imageFormat);
+		connectVar("Antialiasing", &antiAliasing);
 		connectVar("threads", &threads);
 
 		// Framebuffer size and window size may be different in high-DPI displays
