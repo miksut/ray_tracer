@@ -7,7 +7,7 @@ This repository hosts an implementation of an offline high-quality renderer for 
 
 This project implements an offline renderer to produce high-quality renderings of simple 3D scenes using ray tracing. The application builds upon a framework provided by the Visualization and MultiMedia Lab. 
 
-The program starts in the _GLEmbreeTracer_ class which loads a scene composed of a set of drawables (i.e., lights, materials, and geometric objects) via a parser in the `loadScene` method. The input scene can be interactively navigated. Concretely, the viewpoint from which the ray-traced scene rendering is generated can be selected by freeely moving the camera in the scene. The viewpoint allows to define the viewing parameters for the raytracing process. Pressing a GUI button then performs the actual raytracing of the loaded scene. The raytracing itself is based on a wrapper class for the [Embree](https://www.embree.org/) library, which provides a high-level interface to the fundamental raytracing operations (e.g., creation of a spatial acceleration structure for scene objects, creation of rays, or the computation of ray-scene intersections).
+The program starts in the _GLEmbreeTracer_ class which loads a scene composed of a set of drawables (i.e., lights, materials, and geometric objects) via a parser in the `loadScene` method. The input scene can be interactively navigated. Concretely, the viewpoint from which the ray-traced scene rendering is generated can be selected by freely moving the camera in the scene. The viewpoint allows to define the viewing parameters for the raytracing process. Pressing a GUI button then performs the actual raytracing of the loaded scene. The raytracing itself is based on a wrapper class for the [Embree](https://www.embree.org/) library, which provides a high-level interface to the fundamental raytracing operations (e.g., creation of a spatial acceleration structure for scene objects, creation of rays, or the computation of ray-scene intersections).
 
 This project implements the following functionality:
 
@@ -15,21 +15,20 @@ This project implements the following functionality:
 
 - **Anti-Aliasing Scheme**: the aliasing effect is addressed by implementing an anti-aliasing scheme for the raytracing algorithms. This scheme is based on the idea of casting multiple primary rays per pixel in combination with a sampling strategy. 
 
-- **Soft Shadows**: including planar area lights into the scene is the starting point for implementing soft shadows. The surface of these area lights is sampled using a set of shadow rays via a light version of importance sampling. 
+- **Soft Shadows**: including planar area lights into the scene is the starting point for implementing soft shadows. The surface of an area light is sampled using a set of shadow rays via a light version of importance sampling. 
 
 - **Multithreading**: the basic idea is to use multiple threads to process an image. This reduces the rendering time and increases the usability of the application. Specifically, each thread works on a dedicated part of the image. These parts are finally combined using the `runTracer` method. The composed image is then saved to disk (available formats: png and ppm).
 
-Some exemplary image outputs are shown below.
-
+The following images show two exemplary outputs of a ray-traced scene rendering.
 
 <img
-    src="/imgs/01_gd_view1.png"
-    height="200"
+    src="/res/tracedImage1.png"
+    height="250"
     align="left">
     
-    <img
-    src="/imgs/01_gd_view2.png"
-    height="200">
+<img
+    src="/res/tracedImage2.png"
+    height="250">
     
 
 ---
