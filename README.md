@@ -1,6 +1,6 @@
 # Ray Tracer
 
-This repository hosts an implementation of an offline high-quality renderer for 3D scenes based on ray tracing. This project is linked to a lecture offered by the [Visualization and MultiMedia Lab](https://www.ifi.uzh.ch/en/vmml/teaching.html) in the Department of Informatics at the University of Zurich, Switzerland.
+This repository hosts an implementation of an offline high-quality renderer for 3D scenes based on ray tracing. The project has been completed as part of a lecture offered by the [Visualization and MultiMedia Lab](https://www.ifi.uzh.ch/en/vmml/teaching.html) in the Department of Informatics at the University of Zurich, Switzerland.
 
 ---
 ## Project Description
